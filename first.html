@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset=utf-8 />
+        <title> INFO30005 :: JavaScript -Workshop #2 </title>
+    </head> 
+    <body>
+        <p id ='text'> JavascriptDOM :: Changing paragraph style</p> 
+        <div>
+            <button id="style" onclick="js_new_style()">New style</button>
+        </div>
+        <script>
+            function js_new_style() {
+                if(document.getElementById("style").innerText=='New style'){
+                    document.getElementById("text").style.color = "red";
+                    document.getElementById("text").style.fontSize = "xx-large"
+                    document.getElementById("text").style.background = "blue";
+                    document.getElementById("style").innerText = 'Previous style';
+                }
+                else{
+                    document.getElementById("text").style.color = "black";
+                    document.getElementById("text").style.background = "white";  
+                    document.getElementById("style").innerText = 'New style';
+                    document.getElementById("text").style.fontSize = "";
+                }   
+            }   
+        </script>
+    </body>
+</html>
