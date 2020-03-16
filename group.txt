@@ -1,1 +1,5 @@
+<<<<<<< Updated upstream
 WEB IT PROJECT
+=======
+WEB IT Project group
+>>>>>>> Stashed changes
