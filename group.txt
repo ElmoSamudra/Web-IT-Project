@@ -1,3 +1,9 @@
 WEB IT PROJECT
+<<<<<<< Updated upstream
 Kartika Waluyo
 lkjlkjlkj
+=======
+Kartika
+Nathan
+
+>>>>>>> Stashed changes
