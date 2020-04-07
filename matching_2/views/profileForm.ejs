@@ -1,0 +1,30 @@
+ç<% include("partials/header") %>
+<h1>Please fill your profile form</h1>
+<form action = "/filled-profile/0" method = 'POST'>
+    <label>First Name</label>
+    <input type="text" name = "firstName" placeholder = "first name" required>
+    <br>
+    <label>Surname</label>
+    <input type="text" name = "lastName" placeholder = "surname" required>
+    <br>
+    <label>Age</label>
+    <input type="number" name = "age" placeholder = "age" required>
+    <br>
+    <label>Gender</label>
+    <input type="text" name = "gender" placeholder = "male or female" required>
+    <br>
+    <label>Nationality</label>
+    <input type="text" name = "nationality" placeholder = "nationality" required>
+    <br>
+    <label>Hobby</label>
+    <input type="text" name = "hobby" placeholder = "can type more than one">
+    <br>
+    <label>Language Preference</label>
+    <input type="text" name = "language" placeholder = "can type more than one">
+    <br>
+    <label>Find a place to stay in</label>
+    <input type="text" name = "preferStay" placeholder = "suburb" required>
+    <br>
+    <button>Done</button>
+</form>
+<% include("partials/footer") %>

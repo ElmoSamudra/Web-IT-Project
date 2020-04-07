@@ -1,0 +1,32 @@
+<% include("partials/header") %>
+<% var userProf = (users.filter(user => user.id==userID))[0] %>
+
+<h1>My Profile</h1>
+<form action = "/filled-profile/<%= userID %>" method = 'POST'>
+    <label>First Name</label>
+    <input type="text" name = "firstName" value="<%= userProf.firstName %>" required>
+    <br>
+    <label>Surname</label>
+    <input type="text" name = "lastName" value="<%=userProf.lastName%>" required>
+    <br>
+    <label>Age</label>
+    <input type="number" name = "age" value="<%=userProf.age%>" required>
+    <br>
+    <label>Gender</label>
+    <input type="text" name = "gender" value="<%=userProf.gender%>" required>
+    <br>
+    <label>Nationality</label>
+    <input type="text" name = "nationality" value="<%=userProf.nationality%>" required>
+    <br>
+    <label>Hobby</label>
+    <input type="text" name = "hobby" value="<%=userProf.hobby%>">
+    <br>
+    <label>Language Preference</label>
+    <input type="text" name = "language" value="<%=userProf.language%>">
+    <br>
+    <label>Find a place to stay in</label>
+    <input type="text" name = "preferStay" value="<%=userProf.preferStay%>" required>
+    <br>
+    <button>Done</button>
+</form>
+<% include("partials/footer") %>

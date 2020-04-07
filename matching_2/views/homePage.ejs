@@ -1,0 +1,32 @@
+<!-- homepage after login -->
+<% include("partials/header") %>
+<h1>Welcome to Roommee <%= userName %></h1>
+<h3><i>Developed by <b>Paradigm</b></i></h3>
+
+<form action="/fill-profile" method='GET'>
+    <label>Click here if you don't have your profile set up</label>
+    <button>Create Profile</button>
+</form>
+
+<form action='/ask-questionaire' method='GET'>
+    <label>Click here if you haven't fill up the matching questionaire</label>
+    <button>Matching Questionaire</button>
+</form>
+
+<form action="/get-profile/<%=userID%>" method='GET'>
+    <label>Click here to see or change your profile</label>
+    <button>User Profile</button>
+</form>
+
+<form action="/get-questionaire/<%=userID%>" method='GET'>
+    <label>Click here to see or change your questionaire answer</label>
+    <button>User Questionaire</button>
+</form>
+
+<form action="/get-match/<%=userID%>" method='GET'>
+    <label>Click here to get your Roommee match</label>
+    <button>Match Roommee</button>
+</form>
+
+
+<% include("partials/footer") %>
