@@ -1,0 +1,32 @@
+<% include("partials/header") %>
+<h1>My Questionaire Answer</h1>
+<p>Do you prefer having the same nationality with your Roommee?: <%=userQuestionaire.filter1.sameNationalityPref%> </p>
+<p>Do you prefer to have the same gender for your Roommee?: <%=userQuestionaire.filter1.sameGenderPref%> </p>
+<p>Do you want your Roommee to have the same suburb preference?: <%=userQuestionaire.filter1.sameLocationPref%> </p>
+<p>Do you mind if your Roommee have a pet?: <%=userQuestionaire.filter1.petsPref%> </p>
+<p>Do you prefer having the same language with your Roommee?: <%=userQuestionaire.filter1.sameLangPref%> </p>
+<p>How many Roommee are you looking for?: <%=userQuestionaire.filter1.numRoommeePref%> </p>
+<br>
+<h3>Rating Questions:</h3>
+<ul>
+    <li>Enjoy home cooking: <%=userQuestionaire.filter2.homeCookRate%></li>
+    <li>Your night owl rating: <%=userQuestionaire.filter2.nightOwlRate%></li>
+    <li>Enjoy hearing and playing music: <%=userQuestionaire.filter2.playsMusicRate%></li>
+    <li>Your introvert rating: <%=userQuestionaire.filter2.seekIntrovertRate%></li>
+    <li>Your extrovert rating: <%=userQuestionaire.filter2.seekExtrovertRate%></li>
+    <li>Cleanliness tolerance: <%=userQuestionaire.filter2.cleanlinessToleranceRate%></li>
+</ul>
+<br>
+<h3>Age diff gap:</h3>
+<p>From: <%=userQuestionaire.filter1.ageDiffRange[0]%>, To: <%=userQuestionaire.filter1.ageDiffRange[userQuestionaire.filter1.ageDiffRange.length-1]%></p>
+
+<!-- redirected to update page -->
+<form action="/questionaire/update/<%= userQuestionaire.id %>" method='GET'>
+    <p>Do you want to make some changes on your questionaire answer?</p>
+    <button>yes</button>
+</form>
+<!-- go back to home page -->
+<form action='/login-homepage/<%=userQuestionaire.id%>' method='GET'>
+    <button>no</button>
+</form>
+<% include("partials/footer") %>

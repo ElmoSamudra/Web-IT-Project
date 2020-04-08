@@ -1,0 +1,19 @@
+{
+  "name": "roommee",
+  "version": "1.0.0",
+  "description": "finding roommate app for assignment in INFO30005",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Nathanael Luira Yoewono",
+  "license": "ISC",
+  "dependencies": {
+    "body": "^5.1.0",
+    "ejs": "^3.0.2",
+    "express": "^4.17.1",
+    "mongoose": "^5.9.7",
+    "nodemon": "^2.0.2",
+    "parser": "^0.1.4"
+  }
+}
