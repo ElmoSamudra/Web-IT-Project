@@ -1,6 +1,9 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 
+//Connect to database upon start of application
+require('./db/mongoose');
+
 const app = express();
 
 app.use(bodyParser.json());
