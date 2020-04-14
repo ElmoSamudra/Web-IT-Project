@@ -1,19 +1,23 @@
 const mongoose = require ('mongoose');
+//Module to validate emails
 const validator = require ('validator');
+//Module to hash password
 const bcrypt = require('bcrypt');
 const alphabetError = "must contain latin characters only"
+//Module to generate tokens
 const jwt = require('jsonwebtoken')
 
 
-
+//Schema for databse
 const userSchema  = new mongoose.Schema({
     name:{
         type: String,
         required: true,
+        //Validate fields before inserting in to database
         validate(value){
             if(value.length < 2 || value.length > 25){
                 throw new Error("Name must be between 2 and 25 symbols")
-                //validate for alphabetic characters only
+                //Validate for alphabetic characters only
             }if(!/^[a-z]+$/i.test(value)){
                 throw new Error("Name " + alphabetError)
             }
@@ -23,9 +27,11 @@ const userSchema  = new mongoose.Schema({
     surname:{
         type: String,
         required: true,
+        //Validate fields before inserting in to database
         validate(value){
             if(value.length < 2 || value.length > 25 ){
                 throw new Error("Surname must be between 2 and 25 symbols")
+                //Validate for alphabetic characters only
             }if(!/^[a-z]+$/i.test(value)){
                 throw new Error("Surname " + alphabetError)
             }
@@ -39,6 +45,7 @@ const userSchema  = new mongoose.Schema({
         unique: true,
         lowercase: true,
         validate(value){
+            //Validate using external module to check whether email is in proper format
             if(!validator.isEmail(value)){
                 throw new Error("Email is in invalid format. Please correct it.")
             }
@@ -52,6 +59,7 @@ const userSchema  = new mongoose.Schema({
             if(value.length < 6){
                 throw new Error("Password can not be less than six digits long")
             }
+            //Password can not be "password"
             if (value == "password"){
                 throw new Error("Password can not be written as *password*")
             }
@@ -66,6 +74,7 @@ const userSchema  = new mongoose.Schema({
     }]
 })
 
+//Function to generate authentication tokens
 userSchema.methods.generateAuthToken = async function (){
     const account = this
     const token = jwt.sign({ _id: account._id.toString()}, "thisIsSecret")
@@ -76,13 +85,14 @@ userSchema.methods.generateAuthToken = async function (){
 
 }
 
+//Check whether login and hashed password match to ones stored in the databse
 userSchema.statics.findByCredentials = async (email, password)=>{
     const account = await Account.findOne({email})
 
     if(!account){
         throw new Error("Unable to log in")
     }
-
+    //External library used to hash password
     const isMatch = await bcrypt.compare(password, account.password)
     if(!isMatch){
         throw new Error("Unable to log in")
@@ -91,6 +101,7 @@ userSchema.statics.findByCredentials = async (email, password)=>{
     return account
 }
 
+//Hash password before storing in the database
 userSchema.pre("save", async function (next) {
     const account = this
     if(account.isModified('password')){
@@ -98,6 +109,7 @@ userSchema.pre("save", async function (next) {
     }
     next()
 })
+//Connect to model
 const Account = mongoose.model(
     'Account', userSchema
 )
