@@ -16,6 +16,11 @@ const accountRouter = require('./routes/accountRouter');
 app.get('/', (req, res) => {
     res.send('<H1>Library System</H1>')
 });
+
+app.use((req, res, next)=>{
+    console.log(req.method, req.path)
+    next()
+})
 // Handle author-management requests
 // the author routes are added onto the end of '/author-management'
 app.use('/account-management', accountRouter);
