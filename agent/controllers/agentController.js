@@ -16,9 +16,6 @@ const getAllAgents = async (req, res) => {
   }
 };
     
-  
-  
-
 // function to modify agent by ID
 const updateAgent = async (req, res) => {
   res.send("Working on this feature");

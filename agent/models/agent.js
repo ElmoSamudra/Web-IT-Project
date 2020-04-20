@@ -1,7 +1,9 @@
 const mongoose = require("mongoose");
 
 const agentSchema = new mongoose.Schema({
-  id: String,
+  
+  propertyId: String,
+  agentId: Number,
   agency: String,
   first_name: String,
   last_name: String,
