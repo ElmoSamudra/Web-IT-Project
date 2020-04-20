@@ -1,4 +1,5 @@
 var Account = require('../models/account');
+var emailController = require('./emailController')
 
 //Registration of user
 const register = async (req, res) => {
@@ -8,11 +9,13 @@ const register = async (req, res) => {
         //Save instance to Account model
         await newAccount.save()
         //Generate and send user a token upon registration
-        const token = newAccount.generateAuthToken()
-        res.send({newAccount, token})
-
+        const token = await newAccount.generateAuthToken()
+        await newAccount.generateEmailToken()
+        await emailController.sendVerificationEmail(newAccount)
+        res.status(201).send({newAccount, token})
     }catch (e) {
-
+        res.send(e.message.toString())
+        console.log(e)
     }
 }
 //Login user
@@ -23,7 +26,24 @@ const login = async (req, res)=>{
         const token = await account.generateAuthToken()
         res.send({account, token})
     }catch (e) {
+        console.log(e);
         res.send(e.message.toString())
+    }
+}
+
+const logout = async (req, res)=>{
+    try{
+        req.account.tokens = req.account.tokens.filter((token)=>{
+            return token.token !== req.token
+        })
+
+
+        await req.account.save()
+        res.send("You were logged out")
+    }
+    catch (e) {
+        console.log(e);
+
     }
 }
 
@@ -41,18 +61,28 @@ const getOneAccount = (req, res)=>{
     })
 }
 
+const getMyAccount = async (req,res) =>{
+    try{
+        res.send(req.account)
+    }catch (e) {
+        console.log(e)
+    }
+
+}
+
 //Get details of all users
 const getAllAccounts = (req,res) =>{
-    Account.find({}).then((users)=>{
-        res.send(users)
+
+    Account.find({}).then((accounts)=>{
+        console.log(accounts);
+        res.send(accounts)
     }).catch((e)=>{
         res.status(500).send()
-
     })
 }
 
 //Update fields of account
-const updateOne = async (req, res) => {
+const updateMe = async (req, res) => {
     const updates = Object.keys(req.body)
     //Allowed fields to update
     const allowedUpdates = ["name", "surname", "email", "password" ]
@@ -65,11 +95,7 @@ const updateOne = async (req, res) => {
     }
     //
     try{
-        const account = await Account.findById(req.params.id)
-        //Error if account is non existent
-        if (!account) {
-            return res.status(404).send("Account was not found in the database.");
-        }
+        const account = await req.account
         //Iterate through keys:values in account and update by corresponding values
         updates.forEach((update)=> {
             account[update] = req.body[update]})
@@ -80,13 +106,10 @@ const updateOne = async (req, res) => {
     }
 }
 //Delete one account
-const deleteOne = async (req, res) =>{
+const deleteMe = async (req, res) =>{
     try{
-        const account = await Account.findByIdAndDelete(req.params.id)
-        if (!account) {
-            return res.status(404).send()
-        }
-        res.send(account)
+        await req.account.remove()
+        res.send(req.account)
     }
     catch{
         res.status(500).send()
@@ -96,10 +119,12 @@ const deleteOne = async (req, res) =>{
 module.exports = {
     register,
     getAllAccounts,
+    getMyAccount,
     getOneAccount,
-    updateOne,
-    deleteOne,
-    login
+    updateMe,
+    deleteMe,
+    login,
+    logout
 };
 
 

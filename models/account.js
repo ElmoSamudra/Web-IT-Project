@@ -6,10 +6,15 @@ const bcrypt = require('bcrypt');
 const alphabetError = "must contain latin characters only"
 //Module to generate tokens
 const jwt = require('jsonwebtoken')
-
+const DocumentScan = require('./documentScan')
+const emailController = require("../controllers/emailController")
 
 //Schema for databse
 const userSchema  = new mongoose.Schema({
+    isAdmin:{
+        type: Boolean,
+        default: false
+    },
     name:{
         type: String,
         required: true,
@@ -52,6 +57,14 @@ const userSchema  = new mongoose.Schema({
         }
 
     },
+    isEmailVerified: {
+        type: Boolean,
+        default: false
+    },
+
+    emailVerificationToken:{
+        type: String
+    },
     password: {
         type: String ,
         required: true ,
@@ -74,6 +87,22 @@ const userSchema  = new mongoose.Schema({
     }]
 })
 
+userSchema.virtual("passportScan", {
+    ref: "DocumentScan",
+    localField: "_id",
+    foreignField: "submittedBy"
+
+})
+
+userSchema.methods.toJSON = function (){
+    const accountObject = this.toObject()
+    delete accountObject.password
+    delete accountObject.tokens
+    return accountObject
+
+
+}
+
 //Function to generate authentication tokens
 userSchema.methods.generateAuthToken = async function (){
     const account = this
@@ -81,11 +110,16 @@ userSchema.methods.generateAuthToken = async function (){
     account.tokens = account.tokens.concat({token: token})
     await account.save()
     return token
-
-
 }
 
-//Check whether login and hashed password match to ones stored in the databse
+userSchema.methods.generateEmailToken = async function (){
+    const account = this
+    const token = jwt.sign({ _id: account._id.toString()}, "thisIsEmailSecret")
+    account.emailVerificationToken = token
+    await account.save()
+}
+
+//Check whether login and hashed password match to ones stored in the database
 userSchema.statics.findByCredentials = async (email, password)=>{
     const account = await Account.findOne({email})
 
@@ -103,10 +137,26 @@ userSchema.statics.findByCredentials = async (email, password)=>{
 
 //Hash password before storing in the database
 userSchema.pre("save", async function (next) {
-    const account = this
-    if(account.isModified('password')){
-        account.password = await bcrypt.hash(account.password, 8)
+    try {
+        const account = this
+        if(account.isModified('password')){
+            account.password = await bcrypt.hash(account.password, 8)
+        }
+        if(account.isModified('email')){
+           account.isEmailVerified = false;
+           await emailController.sendVerificationEmail(account)
+        }
+        next()
+    }catch (e) {
+        console.log(e);
     }
+
+})
+
+//Deleting documents when user is removed
+userSchema.pre('remove', async function (next){
+    const account = this
+    await DocumentScan.deleteOne({submittedBy: account.id})
     next()
 })
 //Connect to model
