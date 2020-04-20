@@ -25,5 +25,6 @@ app.use('/account-management', accountRouter);
 app.use('/verification-management', verificationRouter)
 
 //Launch server
-app.listen(3000, () => {
-});
+app.listen(process.env.PORT || 3000, () => {
+    console.log("The flatmate app is running!");
+})
