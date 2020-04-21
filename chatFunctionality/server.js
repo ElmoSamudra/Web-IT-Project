@@ -1,83 +1,86 @@
-const path = require('path');
-const http = require('http');
-const express = require('express');
-const socketio = require('socket.io');
-const formatMessage = require('./utils/messages');
-const {
-  userJoin,
-  getCurrentUser,
-  userLeave,
-  getRoomUsers
-} = require('./utils/users');
+// Server side
 
-const app = express();
-const PORT = process.env.PORT || 3000;
-const server = http.createServer(app);
-const io = socketio(server);
+const express = require('express')
+const app = express()
+const server = require('http').Server(app)
+const io = require('socket.io')(server)
 
-server.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+app.set('views', './views')
+app.set('view engine', 'ejs')
+app.use(express.static('public'))
+app.use(express.urlencoded({ extended: true }))
 
+const rooms = { }
 
-// Set static folder
-app.use(express.static(path.join(__dirname, 'public')));
+server.listen(3000)
 
-const botName = 'Roommee Bot';
+// index page
+app.get('/', (req, res) => {
+  res.render('index', { rooms: rooms }) 
+})
 
-// Run when client connects
-io.on('connection', socket => {
-  socket.on('joinRoom', ({ username, room }) => {
-    const user = userJoin(socket.id, username, room);
-    socket.join(user.room);
+// generate new room
+app.post('/room', (req, res) => {
+  if (rooms[req.body.room] != null) {
+      // if the room name already exists, redirect to the index page
+    return res.redirect('/')
+  }
 
+  // create a new room
+  rooms[req.body.room] = { users: {} }  
 
-    // Welcome current user
-    socket.emit('message', formatMessage(botName, 'Welcome to Roommee!'));
+  res.redirect(req.body.room)  
 
-
-    // Broadcast when a user connects
-    socket.broadcast
-      .to(user.room)
-      .emit(
-        'message',
-        formatMessage(botName, `${user.username} has joined the chat`)
-      );
+  // Send message that new room was created
+  io.emit('room-created', req.body.room)
+})
 
 
-    // Send users and room info
-    io.to(user.room).emit('roomUsers', {
-      room: user.room,
-      users: getRoomUsers(user.room)
-    });
-  });
+app.get('/:room', (req, res) => { 
+  if (rooms[req.params.room] == null) {
+    // if the desired room name doesnt exist, redirect to the index page
+    return res.redirect('/')
+  }
+
+  // redirect to the desired room
+  res.render('room', { roomName: req.params.room })
+})
 
 
-  // Listen for chatMessage
-  socket.on('chatMessage', msg => {
-    const user = getCurrentUser(socket.id);
-    io.to(user.room).emit('message', formatMessage(user.username, msg));
-  });
+// connecting to room(changing ejs)
 
+io.on('connection', socket => { 
+  // everytime a user loads oout website, it will call this function
+  //  giving the user their own socket
 
-  // Runs when client disconnects
+  socket.on('new-user', (room, name) => { // catch the new-user event, name as the data
+    socket.join(room)
+
+    // add a new object to users array of the specified room with name as the value
+    rooms[room].users[socket.id] = name  
+
+    // notify other users inside that room when a new user is connected
+    socket.to(room).broadcast.emit('user-connected', name)  
+  })
+
+  socket.on('send-chat-message', (room, message) => {
+    // broadcast the message to every other person connected to the server except to the sender
+    // passing the name and the message
+    socket.to(room).broadcast.emit('chat-message', { message: message, name: rooms[room].users[socket.id] })
+  })
+
   socket.on('disconnect', () => {
-    const user = userLeave(socket.id);
-    if (user) {
-      io.to(user.room).emit(
-        'message',
-        formatMessage(botName, `${user.username} has left the chat`)
-      );
+    getUserRooms(socket).forEach(room => {
+      socket.to(room).broadcast.emit('user-disconnected', rooms[room].users[socket.id])
+      delete rooms[room].users[socket.id]
+    })
+  })
+})
 
-
-      // Send users and room info
-      io.to(user.room).emit('roomUsers', {
-        room: user.room,
-        users: getRoomUsers(user.room)
-      });
-    }
-  });
-});
-
-
-
-
-
+// get all rooms where the user is in
+function getUserRooms(socket) {
+  return Object.entries(rooms).reduce((names, [name, room]) => {
+    if (room.users[socket.id] != null) names.push(name)
+    return names
+  }, [])
+}
