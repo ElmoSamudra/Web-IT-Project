@@ -1,3 +1,0 @@
-Shawn
-LXgK844kPPSNFtJm
-mongodb+srv://Shawn:LXgK844kPPSNFtJm@cluster0-m0kei.mongodb.net/test?retryWrites=true&w=majority
