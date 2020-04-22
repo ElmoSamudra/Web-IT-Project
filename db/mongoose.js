@@ -2,7 +2,7 @@ const mongoose = require ('mongoose');
 //URL for our database in cloud
 const mongoDbUri = "mongodb+srv://adminUser:GroupProject2@cluster0-esd35.mongodb.net/test?retryWrites=true&w=majority";
 
-//connext to MongoDB database in MongoDB Atlas
+//Connect to MongoDB database in MongoDB Atlas
 mongoose.connect(mongoDbUri, {
     useNewUrlParser: true,
     useCreateIndex: true

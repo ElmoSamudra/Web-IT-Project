@@ -5,6 +5,7 @@ const accountRouter = express.Router();
 // Import accountController
 const accountController = require('../controllers/accountController.js');
 //Router for different requests related to account management
+
 //Middleware before routing for authentication
 const auth = require("../middleware/authentication")
 
@@ -13,7 +14,6 @@ accountRouter.get('/accounts',auth, (req,res) => accountController.getAllAccount
 accountRouter.get('/accounts/me',auth, (req,res) => accountController.getMyAccount (req, res))
 accountRouter.post('/accounts/login', (req, res)=> accountController.login(req, res))
 accountRouter.post('/accounts/logout',auth, (req, res)=> accountController.logout(req, res))
-accountRouter.get('/accounts/:id',auth, (req,res) => accountController.getOneAccount (req, res))
 accountRouter.patch('/accounts/me', auth,  (req,res) => accountController.updateMe(req, res))
 accountRouter.delete('/accounts/me', auth, (req, res) => accountController.deleteMe(req, res))
 

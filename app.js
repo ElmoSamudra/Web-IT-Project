@@ -9,16 +9,14 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: true}));
 
 
-//Set up routes related to account management
+//Set up routes
 const accountRouter = require('./routes/accountRouter');
 const verificationRouter = require('./routes/verificationRouter')
 //Home page
 app.get('/', (req, res) => {
-    res.send('<H1>Library System</H1>')
+   var fullUrl = req.protocol + '://' + req.get('host') + req.originalUrl;
+    res.send(fullUrl)
 });
-
-//Logic before routing
-
 
 //Route to account-management
 app.use('/account-management', accountRouter);

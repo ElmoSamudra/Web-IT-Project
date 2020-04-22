@@ -31,7 +31,4 @@ const DocumentScan = mongoose.model(
     'DocumentScan', documentScanSchema
 )
 
-const SecondaryDocumentScan = mongoose.model(
-    'SecondaryDocumentScan', documentScanSchema
-)
 module.exports = DocumentScan;

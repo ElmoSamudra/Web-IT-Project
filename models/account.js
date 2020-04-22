@@ -61,7 +61,7 @@ const userSchema  = new mongoose.Schema({
         type: Boolean,
         default: false
     },
-
+    //String that is used to verify email via link sent via email
     emailVerificationToken:{
         type: String
     },
@@ -79,6 +79,7 @@ const userSchema  = new mongoose.Schema({
 
         }
     },
+    //Array of tokens for authorization, in case user uses more than one device
     tokens: [{
         token: {
             type: String,
@@ -86,18 +87,19 @@ const userSchema  = new mongoose.Schema({
         }
     }]
 })
-
+//Used to retrieve Scan data of corresponding user
 userSchema.virtual("passportScan", {
     ref: "DocumentScan",
     localField: "_id",
     foreignField: "submittedBy"
 
 })
-
+//Clears data that will be sent to user upon requesting his sensitive information
 userSchema.methods.toJSON = function (){
     const accountObject = this.toObject()
     delete accountObject.password
     delete accountObject.tokens
+    delete accountObject.emailVerificationToken
     return accountObject
 
 
@@ -112,6 +114,7 @@ userSchema.methods.generateAuthToken = async function (){
     return token
 }
 
+//Function to generate verification tokens used in email
 userSchema.methods.generateEmailToken = async function (){
     const account = this
     const token = jwt.sign({ _id: account._id.toString()}, "thisIsEmailSecret")
@@ -135,7 +138,7 @@ userSchema.statics.findByCredentials = async (email, password)=>{
     return account
 }
 
-//Hash password before storing in the database
+//Hash password before storing in the database, so that user passwords are not exposed in case of a breach
 userSchema.pre("save", async function (next) {
     try {
         const account = this
@@ -144,7 +147,6 @@ userSchema.pre("save", async function (next) {
         }
         if(account.isModified('email')){
            account.isEmailVerified = false;
-           await emailController.sendVerificationEmail(account)
         }
         next()
     }catch (e) {
@@ -153,12 +155,13 @@ userSchema.pre("save", async function (next) {
 
 })
 
-//Deleting documents when user is removed
+//Deleting users documents when user is removed
 userSchema.pre('remove', async function (next){
     const account = this
     await DocumentScan.deleteOne({submittedBy: account.id})
     next()
 })
+
 //Connect to model
 const Account = mongoose.model(
     'Account', userSchema
