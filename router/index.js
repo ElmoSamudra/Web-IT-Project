@@ -54,7 +54,7 @@ router.get("/get-match/:id", (req, res) => {matchController.runMatchAlgo(req, re
 router.get("/status-match/:id", (req, res) => {matchController.getUserMatch(req, res)});
 // fill the yes or no match status
 router.post("/fill-status-match/:id", (req, res) => {matchController.clickMatch(req, res)});
-//
+// after finalised in chatting
 router.get("/match/:userID/:matchID"), (req, res) => {matchController.matchedClick(req, res)};
 // chat system
 router.get("/chat", (req, res) => {
