@@ -16,8 +16,8 @@
             <li>Find a place to stay in: <%=pendingYes.preferStay%></li>
         </ul>
         <label>Ring Roommee?</label>
-        <input type="text" name = "<%=pendingYes.id%>" value ="yes" required>
-        <% if(data.chat.indexOf(pendingYes.id)===-1){ %>
+        <input type="text" name = "<%=pendingYes.accountId%>" value ="yes" required>
+        <% if(data.chat.indexOf(pendingYes.accountId.toString())===-1){ %>
             <p>Pending Invitation</p>
         <%}else{%>
             <p>Go and Say HI!</p>

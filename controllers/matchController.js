@@ -210,7 +210,6 @@ const filterOne = async function(userID){
 
     return matchID;
 }
-//Include accountID instead of absolete IDs where it is relevant
 
 // sorting the filter one
 const filterTwo = async function(userID, matchID){
