@@ -1,7 +1,10 @@
 const express = require('express'),
       app = express(),
       bodyParser = require('body-parser'),
-      router = require("./router");
+      profileRouter = require("./router/profileRouter");
+      questionaireRouter = require("./router/questionaireRouter");
+      matchRouter = require("./router/matchRouter");
+      router = require('./router');
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended:true}));
@@ -15,6 +18,9 @@ app.get('/', (req, res) =>{
 });
 
 // link directly to router 
+app.use('/user-profile', profileRouter);
+app.use('/user-questionaire', questionaireRouter);
+app.use('/user-match', matchRouter);
 app.use('/', router);
 
 // () => equivalent to function(){}

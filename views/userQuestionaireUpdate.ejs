@@ -1,7 +1,7 @@
 <% include("partials/header") %>
 
 <h1>My Questionaire Answer</h1>
-<form action = "/questionaire/update/<%= qAns.id %>" method = 'POST'>
+<form action = "/user-questionaire/update/<%= qAns.id %>" method = 'POST'>
     <label>Do you prefer having the same nationality with your Roommee?</label>
     <input type="text" name = "sameNationalityPref" value="<%= qAns.filter1.sameNationalityPref %>" required>
     <br>

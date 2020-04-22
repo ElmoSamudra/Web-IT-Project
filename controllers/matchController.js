@@ -85,7 +85,7 @@ const clickMatch = async function(req, res){
             }else{
                 console.log(userMatch);
                 console.log(userMatch.id+ " saved to Match collection.");
-                res.redirect("/status-match/"+userMatch.id);
+                res.redirect("/user-match/status/"+userMatch.id);
             }
         });
     // old user
@@ -122,7 +122,7 @@ const clickMatch = async function(req, res){
                 res.status(400);
                 res.send('failed update match')
             }else{
-                res.redirect("/status-match/"+userID);
+                res.redirect("/user-match/status/"+userID);
             }
         });
     }

@@ -17,7 +17,7 @@ const getUserQuestionaire = (req, res) => {
                 res.render("userQuestionaire", {userQuestionaire:userQuestionaire});
             }else{
                 console.log("Creating new questionaire for "+userID);
-                res.redirect("/questionaire/new/"+userID);
+                res.redirect("/user-questionaire/new/"+userID);
             }
         }
     });
@@ -68,7 +68,7 @@ const updateUserQuestionaire = (req, res) => {
             res.send('Questionaire update failed');
         }else{
             console.log('Updated '+userID+' questionaire');
-            res.redirect('/questionaire/'+userID);
+            res.redirect('/user-questionaire/'+userID);
         }
     });
 }
@@ -103,7 +103,7 @@ const addAnswerQ = (req, res) => {
                 res.send('Create new user questionaire failed');
             }else{
                 console.log('Creating new user questionaire for '+userID);
-                res.redirect('/questionaire/'+userQ.id);
+                res.redirect('/user-questionaire/'+userQ.id);
             }
         });
 };

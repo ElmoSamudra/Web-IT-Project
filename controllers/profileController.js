@@ -50,7 +50,7 @@ const updateUserProfile = (req, res) => {
                 console.log(err);
             }else{
                 console.log('update '+userID+' profile');
-                res.redirect("/profile/"+userID);
+                res.redirect("/user-profile/"+userID);
             }
     });
 };
