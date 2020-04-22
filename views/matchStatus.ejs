@@ -1,0 +1,51 @@
+<% include("partials/header") %>
+
+<h1>Match Status</h1>
+<h3>Profile</h3>
+
+<form action="/fill-status-match/<%=data.id%>" method='POST'>
+    
+    <ol>
+    <% pending.forEach(function(pendingYes){ %>
+        <li>Name: <%=pendingYes.firstName+" "+pendingYes.lastName%></li>
+        <ul>
+            <li>Gender: <%=pendingYes.gender%></li>
+            <li>Nationality: <%=pendingYes.nationality%></li>
+            <li>Hobby: <%=pendingYes.hobby%></li>
+            <li>Language: <%=pendingYes.language%></li>
+            <li>Find a place to stay in: <%=pendingYes.preferStay%></li>
+        </ul>
+        <label>Ring Roommee?</label>
+        <input type="text" name = "<%=pendingYes.id%>" value ="yes" required>
+        <% if(data.chat.indexOf(pendingYes.id)===-1){ %>
+            <p>Pending Invitation</p>
+        <%}else{%>
+            <p>Go and Say HI!</p>
+            <button formaction = "/chat" formmethod='GET'>Chat</button>
+        <%}%>
+    <%});%>
+    <% reject.forEach(function(rejectNo){ %>
+        <li>Name: <%=rejectNo.firstName+" "+rejectNo.lastName%></li>
+        <ul>
+            <li>Gender: <%=rejectNo.gender%></li>
+            <li>Nationality: <%=rejectNo.nationality%></li>
+            <li>Hobby: <%=rejectNo.hobby%></li>
+            <li>Language: <%=rejectNo.language%></li>
+            <li>Find a place to stay in: <%=rejectNo.preferStay%></li>
+        </ul>
+        <label>Ring Roommee?</label>
+        <input type="text" name = "<%=rejectNo.id%>" value ="no" required>
+    <%});%>
+    </ol>
+
+    <button>Done</button>
+
+</form>
+
+<!-- Go back to home -->
+<form action="/login-homepage/<%=data.id%>" method='GET'>
+    <!-- name here is used for the name attribute in the object-->
+    <button>Back</button>
+</form>
+
+<% include("partials/footer") %>

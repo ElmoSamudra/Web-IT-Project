@@ -1,0 +1,33 @@
+<% include("partials/header") %>
+
+<h1>Match Roommee</h1>
+<p><i>These profiles has been sorted from the closest to least match</i></p>
+<h3>Profile</h3>
+
+<form action="/fill-status-match/<%=idUser%>" method='POST'>
+    <ol>
+    <% sortedMatchUser.forEach(function(matchUser){ %>
+        <li>Name: <%=matchUser.firstName+" "+matchUser.lastName%></li>
+        <ul>
+            <li>Gender: <%=matchUser.gender%></li>
+            <li>Nationality: <%=matchUser.nationality%></li>
+            <li>Hobby: <%=matchUser.hobby%></li>
+            <li>Language: <%=matchUser.language%></li>
+            <li>Find a place to stay in: <%=matchUser.preferStay%></li>
+        </ul>
+        <label>Ring Roommee?</label>
+        <input type="text" name = "<%=matchUser.id%>" placeholder = "yes or no" required>
+        
+    <%})%>
+    </ol>
+
+    <button>Done</button>
+</form>
+
+<!-- Go back to home -->
+<form action="/login-homepage/<%=idUser%>" method='GET'>
+    <!-- name here is used for the name attribute in the object-->
+    <button>Back</button>
+</form>
+
+<% include("partials/footer") %>
