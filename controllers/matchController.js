@@ -1,7 +1,7 @@
 // get the data model for other user
-var users = require('../model/userDB.js');
-var usersAns = require('../model/userQDB.js');
-var usersMatch = require('../model/matchDB.js');
+var users = require('../models/userDB.js');
+var usersAns = require('../models/userQDB.js');
+var usersMatch = require('../models/matchDB.js');
 
 // -------------------------------Match Algorithm--------------------------------
 
@@ -9,26 +9,26 @@ var usersMatch = require('../model/matchDB.js');
 const runMatchAlgo = async (req, res) => {
 
     // filter 1
-    const idUser = req.params.id;
+    const idUser = req.account._id
     const firstFilter = await filterOne(idUser);
     
     // if found no matching in first filter, just get all user with same gender and nationality for now
     if(firstFilter.length===0){
-        const userProf = await users.findOne({'id':idUser});
+        const userProf = await users.findOne({'accountId':idUser});
         const getAll = await users.find({'id':{$ne:idUser}, 'gender':userProf.gender, 'nationality':userProf.nationality});
         const firstFilter = getAll.map(value => value.id);
 
         // sort the filter
         const secondFilter = await filterTwo(idUser, firstFilter);
         const finResult = secondFilter.map(value => value.id);
-        const sortedMatchUser = await users.find({'id':{$in:finResult}});
+        const sortedMatchUser = await users.find({'accountId':{$in:finResult}});
         res.render('matchProfile', {sortedMatchUser:sortedMatchUser, idUser:idUser});
     }
 
     // sort the filter
     const secondFilter = await filterTwo(idUser, firstFilter);
     const finResult = secondFilter.map(value => value.id);
-    const sortedMatchUser = await users.find({'id':{$in:finResult}});
+    const sortedMatchUser = await users.find({'accountId':{$in:finResult}});
     res.render('matchProfile', {sortedMatchUser:sortedMatchUser, idUser:idUser});
 
     // firstFilter.then(function(result){
@@ -55,7 +55,7 @@ const clickMatch = async function(req, res){
     
     const userID = req.params.id;
     const matchIDs = Object.keys(req.body);
-    const userMatch = await usersMatch.findOne({'id':userID});
+    const userMatch = await usersMatch.findOne({'accountId':userID});
 
     
     // new userMatch, create first
@@ -131,19 +131,19 @@ const clickMatch = async function(req, res){
 // after press button, can get all status
 const getUserMatch = async function(req, res){
     const userID = req.params.id;
-    const data = await usersMatch.findOne({'id':userID});
-    const pending = await users.find({'id':{$in:data.yes}});
-    const reject = await users.find({'id':{$in:data.no}});
+    const data = await usersMatch.findOne({'accountId':userID});
+    const pending = await users.find({'accountId':{$in:data.yes}});
+    const reject = await users.find({'accountId':{$in:data.no}});
     res.render('matchStatus', {data:data, pending:pending, reject:reject});
 };
 
 const matchedClick = async function(req, res){
     
-    const userOne = req.params.userID;
+    const userOne = req.account._id;
     const userTwo = req.params.matchID;
 
-    await users.updateOne({id:userOne}, {'roommee':userTwo});
-    await users.updateOne({id:userTwo}, {'roommee':userOne});
+    await users.updateOne({accountId:userOne}, {'roommee':userTwo});
+    await users.updateOne({accountId:userTwo}, {'roommee':userOne});
 
     res.send('You have found your roommee: '+userTwo);
 }
@@ -154,18 +154,18 @@ const matchedClick = async function(req, res){
 const checkMatch = async function(userID, matchID, ans){
     
     console.log('enter');
-    const matchRes = await usersMatch.findOne({'id':matchID, 'yes':{$in:userID}});
+    const matchRes = await usersMatch.findOne({'accountId':matchID, 'yes':{$in:userID}});
     // Enable chat 
     if(matchRes){
         if(matchRes.chat.indexOf(userID)===-1){
             if(ans==='yes'){
-                await usersMatch.updateOne({'id':matchID}, {$push:{'chat':userID}});
-                await usersMatch.updateOne({'id':userID}, {$push:{'chat':matchID}});
+                await usersMatch.updateOne({'accountId':matchID}, {$push:{'chat':userID}});
+                await usersMatch.updateOne({'accountId':userID}, {$push:{'chat':matchID}});
             }
         }else{
             if(ans==='no'){
-                await usersMatch.updateOne({'id':matchID}, {$pull:{'chat':userID}});
-                await usersMatch.updateOne({'id':userID}, {$pull:{'chat':matchID}});
+                await usersMatch.updateOne({'accountId':matchID}, {$pull:{'chat':userID}});
+                await usersMatch.updateOne({'accountId':userID}, {$pull:{'chat':matchID}});
             }
         }
     };
@@ -175,19 +175,19 @@ const checkMatch = async function(userID, matchID, ans){
 const filterOne = async function(userID){
     
     // query the user profile and questionaire
-    const user = await users.findOne({id:userID});
-    const userQ = await usersAns.findOne({id:userID});
+    const user = await users.findOne({accountId:userID});
+    const userQ = await usersAns.findOne({accountId:userID});
 
     // set the query object
     let userQueryObject = {};
     let questionQueryObject = {};
 
     // essential data needed for other user
-    userQueryObject.id = {$ne:userID};
+    userQueryObject.accountId = {$ne:userID};
     userQueryObject.roommee = 'none';
 
     // essential data needed for other user questionaire answer
-    questionQueryObject.id = {$ne:userID};
+    questionQueryObject.accountId = {$ne:userID};
     questionQueryObject['filter1.numRoommeePref'] = userQ.filter1.numRoommeePref;
     questionQueryObject['filter1.ageDiffRange'] = user.age;
     
@@ -214,21 +214,22 @@ const filterOne = async function(userID){
     const userMatches = await users.find(userQueryObject);
     const userQMatches = await usersAns.find(questionQueryObject);
 
-    const idOne = userMatches.map(value => value.id);
+    const idOne = userMatches.map(value => value.accountId);
     //console.log(idOne);
-    const idTwo = userQMatches.map(value => value.id);
+    const idTwo = userQMatches.map(value => value.accountId);
     //console.log(idTwo);
     const matchID = idOne.filter(value => idTwo.includes(value));
 
     return matchID;
 }
+//Include accountID instead of absolete IDs where it is relevant
 
 // sorting the filter one
 const filterTwo = async function(userID, matchID){
 
-    const queryID = {id: {$in: matchID}};
+    const queryID = {accountId: {$in: matchID}};
     // query user and other matches
-    const user = await usersAns.findOne({id:userID});
+    const user = await usersAns.findOne({accountId:userID});
     const filterOneMatches = await usersAns.find(queryID);
     let result = []
     let comparison;

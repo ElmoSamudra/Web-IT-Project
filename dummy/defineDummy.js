@@ -1,5 +1,5 @@
-var userDummy = require('../model/userDB.js');
-var userQDummy = require('../model/userQDB.js');
+var userDummy = require('../models/userDB.js');
+var userQDummy = require('../models/userQDB.js');
 
 const userID = '10001';
 

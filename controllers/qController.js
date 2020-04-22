@@ -1,20 +1,21 @@
 // get the questionaire answer
 //var usersAns = require("../model/usersQuestionaire");
 //var users = require("../model/users");
-var usersAns = require("../model/userQDB.js");
+var usersAns = require("../models/userQDB.js");
 
 const getUserQuestionaire = (req, res) => {
-    const userID = req.params.id;
+    const userID = req.account._id;
     
     // query the specified id
-    usersAns.findOne({'id':userID}, (err, userQuestionaire) => {
+    usersAns.findOne({'accountId':userID}, (err, userQuestionaire) => {
         if(err){
             res.status(400);
             res.send('Get questionaire failed');
         }else{
             if(userQuestionaire){
                 console.log("Get the user questionaire for "+userID);
-                res.render("userQuestionaire", {userQuestionaire:userQuestionaire});
+                res.send(userQuestionaire)
+                /*res.render("userQuestionaire", {userQuestionaire:userQuestionaire});*/
             }else{
                 console.log("Creating new questionaire for "+userID);
                 res.redirect("/questionaire/new/"+userID);
@@ -23,10 +24,11 @@ const getUserQuestionaire = (req, res) => {
     });
 }
 
-const updateQuestionaireRedirect = (req, res) => {
+//Part relevant for the front end phase
+/*const updateQuestionaireRedirect = (req, res) => {
 
-    const userID = req.params.id;
-    usersAns.findOne({'id':userID}, (err, qAns) => {
+    const userID = req.account._id;
+    usersAns.findOne({'accountId':userID}, (err, qAns) => {
         if(err){
             res.status(400);
             res.send('Update redirect failed');
@@ -35,12 +37,11 @@ const updateQuestionaireRedirect = (req, res) => {
             res.render("userQuestionaireUpdate", {qAns:qAns});
         }
     });
-}
+}*/
 
 const updateUserQuestionaire = (req, res) => {
-    
-    const userID = req.params.id;
-    
+
+    const userID = req.account._id;
     // set the update object
     let updateQuestionaire = {};
     
@@ -62,7 +63,7 @@ const updateUserQuestionaire = (req, res) => {
     updateQuestionaire['filter2.cleanlinessToleranceRate'] = req.body.cleanlinessToleranceRate;
 
     // update the user questionaire
-    usersAns.updateOne({'id':userID}, {$set:updateQuestionaire}, function(err, user){
+    usersAns.updateOne({'accountId':userID}, {$set:updateQuestionaire}, function(err, user){
         if(err){
             res.status(400);
             res.send('Questionaire update failed');
@@ -78,7 +79,7 @@ const addAnswerQ = (req, res) => {
     
     let newUserQ = new usersAns
         ({
-            id: req.params.id,
+            accountId: req.account._id,
             filter1:{
                 sameNationalityPref: req.body.sameNationalityPref,
                 sameGenderPref: req.body.sameGenderPref,
@@ -103,7 +104,8 @@ const addAnswerQ = (req, res) => {
                 res.send('Create new user questionaire failed');
             }else{
                 console.log('Creating new user questionaire for '+userID);
-                res.redirect('/questionaire/'+userQ.id);
+                res.send(userQ)
+                //res.redirect('/questionaire/'+userQ._id);
             }
         });
 };
@@ -122,5 +124,5 @@ module.exports = {
     getUserQuestionaire,
     addAnswerQ,
     updateUserQuestionaire,
-    updateQuestionaireRedirect
+    //updateQuestionaireRedirect
 };

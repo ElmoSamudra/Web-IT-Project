@@ -1,10 +1,10 @@
 var mongoose = require("mongoose");
-mongoose.connect("mongodb://localhost:27017/roommee_app", {useNewUrlParser: true, useUnifiedTopology: true});
 
 var userSchema = new mongoose.Schema({
-    id: String,
-    firstName: String,
-    lastName: String,
+    accountId: {
+        type: mongoose.Schema.Types.ObjectID,
+        ref: "Account"
+    },
     age: Number,
     gender: String,
     nationality: String,

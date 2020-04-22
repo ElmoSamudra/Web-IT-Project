@@ -4,16 +4,15 @@ const bodyParser = require('body-parser');
 
 //Connect to database in MongoDB Atlas upon start of application
 require('./db/mongoose');
-app.set("view engine", "ejs");
 const app = express();
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: true}));
-
+app.set("view engine", "ejs");
 
 //Set up routes
 const accountRouter = require('./routes/accountRouter');
 const verificationRouter = require('./routes/verificationRouter')
-router = require("./router");
+router = require("./routes/index");
 
 //Home page
 app.get('/', (req, res) => {

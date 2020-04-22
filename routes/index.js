@@ -6,8 +6,8 @@ const router = express.Router();
 // require each controller
 const matchController = require('../controllers/matchController.js');
 const profileController = require('../controllers/profileController.js');
-const loginController = require('../controllers/loginController');
 const qController = require('../controllers/qController.js');
+const auth = require("../middleware/authentication")
 
 // handle all get management
 
@@ -34,15 +34,15 @@ router.post("/questionaire/update/:id", (req, res) => {qController.updateUserQue
 
 // -------------------------------profile-------------------------------- 
 // fill the user profile
-router.get("/profile/new", (req, res) => {res.render("profileForm")});
+router.get("/profile/new",auth , (req, res) => {res.render("profileForm")});
 // save the user profile
-router.post("/profile/new", (req, res) => {profileController.newUserProfile(req, res)});
+router.post("/profile/new",auth ,(req, res) => {profileController.newUserProfile(req, res)});
 // get the profile for user
-router.get("/profile/:id", (req, res) => {profileController.getUserProfile(req, res)});
+router.get("/profile/:id",auth, (req, res) => {profileController.getUserProfile(req, res)});
 // fill the update for user profile 
-router.get("/profile/update/:id", (req, res) => {profileController.updateRedirect(req, res)});
+router.get("/profile/update/:id",auth, (req, res) => {profileController.updateRedirect(req, res)});
 // update the user profile
-router.post("/profile/update/:id", (req, res) => {profileController.updateUserProfile(req, res)});
+router.post("/profile/update/:id",auth, (req, res) => {profileController.updateUserProfile(req, res)});
 // ----------------------------------------------------------------------
 
 // -------------------------------Core Functionality-------------------------------- 
