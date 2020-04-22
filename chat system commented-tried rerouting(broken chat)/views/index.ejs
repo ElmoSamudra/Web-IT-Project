@@ -12,10 +12,10 @@
   <div id="room-container">
     <% Object.keys(rooms).forEach(room => { %>
       <div><%= room %></div>  <!-- display all room names -->
-      <a href="/<%= room %>">Join</a>  <!-- link to join a room -->
+      <a href="/chatrooms/<%= room %>">Join</a>  <!-- link to join a room -->
     <% }) %>
   </div>
-  <form action="/room" method="POST">
+  <form action="/chatrooms/room" method="POST">
     <!-- create a new room -->
     <input name="room" type="text" required>
     <button type="submit">New Room</button>

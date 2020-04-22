@@ -5,6 +5,7 @@ const app = express()
 const server = require('http').Server(app)
 const io = require('socket.io')(server)
 
+
 app.set('views', './views')
 app.set('view engine', 'ejs')
 app.use(express.static('public'))
@@ -14,36 +15,45 @@ const rooms = { }
 
 server.listen(3000)
 
-// index page
 app.get('/', (req, res) => {
+  res.send('HOMEPAGE')
+})
+
+// index page
+app.get('/chatrooms', (req, res) => {
   res.render('index', { rooms: rooms }) 
 })
 
+
 // generate new room
-app.post('/room', (req, res) => {
+app.post('/chatrooms/room', (req, res) => {
   if (rooms[req.body.room] != null) {
       // if the room name already exists, redirect to the index page
-    return res.redirect('/')
+    return res.redirect('/chatrooms')
   }
 
   // create a new room
   rooms[req.body.room] = { users: {} }  
 
-  res.redirect(req.body.room)  
+  res.redirect('/chatrooms')  
 
   // Send message that new room was created
-  io.emit('room-created', req.body.room)
+  io.emit('room-created', `/chatrooms/${req.body.room}`)
 })
 
 
-app.get('/:room', (req, res) => { 
+app.get('/chatrooms/:room', (req, res) => { 
   if (rooms[req.params.room] == null) {
     // if the desired room name doesnt exist, redirect to the index page
-    return res.redirect('/')
+    return res.redirect('/chatrooms')
   }
 
   // redirect to the desired room
   res.render('room', { roomName: req.params.room })
+})
+
+app.get('/agent', (req, res) => {
+  res.send('<h1>AGENT UTILS PAGE</h1>')
 })
 
 

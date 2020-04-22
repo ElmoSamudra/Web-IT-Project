@@ -14,12 +14,12 @@ const messageInput = document.getElementById('message-input')
 //receive users as an object.
 
 
-
-
+username = "BOBY"
+console.log('hey!' + messageForm)
 if (messageForm != null) {
   // get user name
-  // only pops up if no messageForm already exists for that user
-  const name = prompt('What is your name?')
+  const name = username
+
   appendMessage('You joined')
 
   // send the name of new user to the server
@@ -33,6 +33,7 @@ if (messageForm != null) {
 
     const message = messageInput.value
     appendMessage(`You: ${message}`)
+    console.log('SENT MESSAGE')
 
     // emit: send information from the client to the server
     socket.emit('send-chat-message', roomName, message)  
@@ -51,11 +52,12 @@ if (messageForm != null) {
 
 
 socket.on('room-created', room => {
+
   const roomElement = document.createElement('div')
   roomElement.innerText = room
 
   const roomLink = document.createElement('a')
-  roomLink.href = `/${room}`
+  roomLink.href = `${room}`
   roomLink.innerText = 'join'
 
   roomContainer.append(roomElement)  // add room name to be then displayed in order
