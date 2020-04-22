@@ -137,6 +137,17 @@ const getUserMatch = async function(req, res){
     res.render('matchStatus', {data:data, pending:pending, reject:reject});
 };
 
+const matchedClick = async function(req, res){
+    
+    const userOne = req.params.userID;
+    const userTwo = req.params.matchID;
+
+    await users.updateOne({id:userOne}, {'roommee':userTwo});
+    await users.updateOne({id:userTwo}, {'roommee':userOne});
+
+    res.send('You have found your roommee: '+userTwo);
+}
+
 // -------------------------------Helper Function-------------------------------- 
 
 // check if there is a chat match
@@ -254,4 +265,5 @@ module.exports={
     runMatchAlgo,
     clickMatch,
     getUserMatch,
+    matchedClick
 };
