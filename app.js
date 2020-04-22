@@ -11,19 +11,23 @@ app.set("view engine", "ejs");
 
 //Set up routes
 const accountRouter = require('./routes/accountRouter');
-const verificationRouter = require('./routes/verificationRouter')
-router = require("./routes/index");
+const verificationRouter = require('./routes/verificationRouter');
+const profileRouter = require("./routes/profileRouter");
+const questionaireRouter = require("./routes/questionaireRouter");
+const matchRouter = require("./routes/matchRouter");
 
 //Home page
 app.get('/', (req, res) => {
-   var fullUrl = req.protocol + '://' + req.get('host') + req.originalUrl;
-    res.send(fullUrl)
+    //var fullUrl = req.protocol + '://' + req.get('host') + req.originalUrl;
+    res.send("<h1>Welcome to Roommee</h1>");
 });
 
 //Routers
 app.use('/account-management', accountRouter);
 app.use('/verification-management', verificationRouter)
-app.use('/', router);
+app.use('/user-profile', profileRouter);
+app.use('/user-questionaire', questionaireRouter);
+app.use('/user-match', matchRouter);
 
 //Launch server
 app.listen(process.env.PORT || 3000, () => {

@@ -3,14 +3,12 @@ var users = require('../models/userDB');
 // this function is created to show the current user profile
 const getUserProfile = (req, res) => {
     //var userProf = (users.filter(user => user.id==userID))[0];
-    users.findOne({'accountId':req.account._id}, function(err, user){
+    users.findOne({'accountId':req.account._id}, function(err, userProf){
         if(err){
             console.log(err);
             res.send("Error")
         }else{
-            console.log('get '+user.id+' profile');
-            res.send(user)
-            /*res.render("userProfile", {userProf:userProf})*/;
+            res.render("userProfile", {userProf:userProf});
         }
     })
 }
@@ -30,10 +28,10 @@ const updateRedirect = (req, res) => {
 
 // update the user profile
 const updateUserProfile = (req, res) => {
+    console.log('enter update user');
     const userID = req.account._id;
     const keys = Object.keys(req.body);
     let updateProf = {};
-    updateProf['accountId'] = userID;
     // iterate over all of the keys
     keys.forEach(key =>{
         if(key=='language' || key=='Hobby' || key=='preferStay'){
@@ -51,37 +49,44 @@ const updateUserProfile = (req, res) => {
                 res.send("Error")
             }else{
                 console.log('update '+userID+' profile');
-                res.send(user)
+                res.send('User updated');
                /* res.redirect("/profile/"+userID)*/;
             }
     });
 };
 
 // this function is created to update and fill the new user profile
-const newUserProfile = (req, res) => {
+const newUserProfile = async (req, res) => {
+    
+    const findUser = await users.findOne({'accountId':req.account._id});
 
-            const keys = Object.keys(req.body);
-            let newUser = new users({});
-            // iterate for each class
-            keys.forEach(key =>{
-                if(key=='language' || key=='Hobby' || key=='preferStay'){
-                    newUser[key] = (req.body[key]).split(',');
-                }else{
-                    newUser[key] = req.body[key];
-                }
-            });
-            newUser.accountId = req.account._id
-            // save the new user
-            newUser.save(function (err, userQ){
-                if(err){
-                    console.error('err');
-                }else{
-                    console.log(userQ + " saved to User collection.");
-                    /*res.redirect("/profile/"+curID);*/
-                }
-            });
+    if(findUser){
+        return res.send('user profile has already been created, please update it instead');
+    }
 
-    ;
+    const keys = Object.keys(req.body);
+    let newUser = new users({});
+    // iterate for each class
+    keys.forEach(key =>{
+        if(key=='language' || key=='Hobby' || key=='preferStay'){
+            newUser[key] = (req.body[key]).split(',');
+        }else{
+            newUser[key] = req.body[key];
+        }
+    });
+    newUser.accountId = req.account._id
+    newUser.firstName = req.account.name;
+    newUser.surName = req.account.surname;
+    // save the new user
+    newUser.save(function (err, userQ){
+        if(err){
+            console.error('err');
+        }else{
+            console.log(userQ + " saved to User collection.");
+            res.send(userQ);
+            /*res.redirect("/profile/"+curID);*/
+        }
+    });
 };
 
 module.exports = {

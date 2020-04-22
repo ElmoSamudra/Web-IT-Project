@@ -13,19 +13,20 @@ const getUserQuestionaire = (req, res) => {
             res.send('Get questionaire failed');
         }else{
             if(userQuestionaire){
-                console.log("Get the user questionaire for "+userID);
-                res.send(userQuestionaire)
+                console.log("Get the user questionaire");
+                res.send(userQuestionaire);
                 /*res.render("userQuestionaire", {userQuestionaire:userQuestionaire});*/
             }else{
-                console.log("Creating new questionaire for "+userID);
-                res.redirect("/questionaire/new/"+userID);
+                console.log("need to create user questionaire");
+                res.send("Please create a user questionaire first");
+                // res.redirect("/user-questionaire/new");
             }
         }
     });
 }
 
 //Part relevant for the front end phase
-/*const updateQuestionaireRedirect = (req, res) => {
+const updateQuestionaireRedirect = (req, res) => {
 
     const userID = req.account._id;
     usersAns.findOne({'accountId':userID}, (err, qAns) => {
@@ -33,11 +34,11 @@ const getUserQuestionaire = (req, res) => {
             res.status(400);
             res.send('Update redirect failed');
         }else{
-            console.log("Updating user questionaire for "+userID);
+            //console.log("Update questionaire redirect");
             res.render("userQuestionaireUpdate", {qAns:qAns});
         }
     });
-}*/
+}
 
 const updateUserQuestionaire = (req, res) => {
 
@@ -68,15 +69,20 @@ const updateUserQuestionaire = (req, res) => {
             res.status(400);
             res.send('Questionaire update failed');
         }else{
-            console.log('Updated '+userID+' questionaire');
-            res.redirect('/questionaire/'+userID);
+            console.log('Updated questionaire');
+            res.send('Update Questionaire Completed');
+            //res.redirect('/questionaire/'+userID);
         }
     });
 }
 
 // create the function to record all answered questionaire
-const addAnswerQ = (req, res) => {
+const addAnswerQ = async (req, res) => {
     
+    const findQ = await usersAns.findOne({"accountId":req.account._id});
+    if(findQ){
+        return res.send('User already created user questionaire, please to update instead');
+    }
     let newUserQ = new usersAns
         ({
             accountId: req.account._id,
@@ -103,7 +109,7 @@ const addAnswerQ = (req, res) => {
                 res.status(400);
                 res.send('Create new user questionaire failed');
             }else{
-                console.log('Creating new user questionaire for '+userID);
+                console.log('Created new user questionaire');
                 res.send(userQ)
                 //res.redirect('/questionaire/'+userQ._id);
             }
@@ -124,5 +130,5 @@ module.exports = {
     getUserQuestionaire,
     addAnswerQ,
     updateUserQuestionaire,
-    //updateQuestionaireRedirect
+    updateQuestionaireRedirect
 };

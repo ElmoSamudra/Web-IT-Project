@@ -1,3 +1,5 @@
+var mongoose = require("mongoose");
+
 // get the data model for other user
 var users = require('../models/userDB.js');
 var usersAns = require('../models/userQDB.js');
@@ -15,8 +17,8 @@ const runMatchAlgo = async (req, res) => {
     // if found no matching in first filter, just get all user with same gender and nationality for now
     if(firstFilter.length===0){
         const userProf = await users.findOne({'accountId':idUser});
-        const getAll = await users.find({'id':{$ne:idUser}, 'gender':userProf.gender, 'nationality':userProf.nationality});
-        const firstFilter = getAll.map(value => value.id);
+        const getAll = await users.find({'accountId':{$ne:idUser}, 'gender':userProf.gender, 'nationality':userProf.nationality});
+        const firstFilter = getAll.map(value => value.accountId);
 
         // sort the filter
         const secondFilter = await filterTwo(idUser, firstFilter);
@@ -27,25 +29,9 @@ const runMatchAlgo = async (req, res) => {
 
     // sort the filter
     const secondFilter = await filterTwo(idUser, firstFilter);
-    const finResult = secondFilter.map(value => value.id);
+    const finResult = secondFilter.map(value => mongoose.Types.ObjectId(value.id));
     const sortedMatchUser = await users.find({'accountId':{$in:finResult}});
     res.render('matchProfile', {sortedMatchUser:sortedMatchUser, idUser:idUser});
-
-    // firstFilter.then(function(result){
-    //     // filter 2
-    //     sortedMatch = filterTwo(idUser, result);
-    //     sortedMatch.then(function(finResult){
-    //         const matchID = finResult.map(value => value.id);
-    //         users.find({id:{$in:matchID}}, (err, sortedMatchUser) => {
-    //             if(err){
-    //                 res.status(400)
-    //                 return res.send('Match failed');
-    //             }else{
-    //                 res.render('matchProfile', {sortedMatchUser:sortedMatchUser, idUser:idUser});
-    //             }
-    //         });
-    //     });
-    // });  
 };
 
 // -------------------------------Match Status-------------------------------- 
@@ -53,7 +39,8 @@ const runMatchAlgo = async (req, res) => {
 // check for the match status here
 const clickMatch = async function(req, res){
     
-    const userID = req.params.id;
+    console.log('masuk controller');
+    const userID = req.account._id;
     const matchIDs = Object.keys(req.body);
     const userMatch = await usersMatch.findOne({'accountId':userID});
 
@@ -62,20 +49,20 @@ const clickMatch = async function(req, res){
     if(userMatch===null){
         
         let newUserMatch = new usersMatch({
-            id:userID,
-            cadidatesMatch:matchIDs,
+            accountId:req.account._id,
             yes:[],
             no:[],
             chat:[]
         });
+
         // loop each match id
         matchIDs.forEach(key => {
             const ans = req.body[key];
             if(ans==='yes'){
-                newUserMatch.yes.push(key);
+                newUserMatch.yes.push(key.toString());
                 checkMatch(userID, key, ans);
             }else{
-                newUserMatch.no.push(key);
+                newUserMatch.no.push(key.toString());
             }
         });
         // update the answer
@@ -84,8 +71,8 @@ const clickMatch = async function(req, res){
                 console.error('err');
             }else{
                 console.log(userMatch);
-                console.log(userMatch.id+ " saved to Match collection.");
-                res.redirect("/status-match/"+userMatch.id);
+                console.log("New user saved to Match collection.");
+                res.redirect("/user-match/status");
             }
         });
     // old user
@@ -96,21 +83,21 @@ const clickMatch = async function(req, res){
             
             if(ans==='yes'){
                 // no duplicate
-                if(userMatch.yes.indexOf(key)===-1){
-                    userMatch.yes.push(key);
-                    checkMatch(userID, key, ans);
+                if(userMatch.yes.indexOf(key.toString())===-1){
+                    userMatch.yes.push(key.toString());
+                    checkMatch(userID, key.toString(), ans);
                     // should not be in the no if there is in the yes list
-                    if(userMatch.no.indexOf(key)!==-1){
-                        userMatch.no.splice(userMatch.no.indexOf(key), 1);
+                    if(userMatch.no.indexOf(key.toString())!==-1){
+                        userMatch.no.splice(userMatch.no.indexOf(key.toString()), 1);
                     }
                 }
 
             }else{
-                if(userMatch.no.indexOf(key)===-1){
-                    userMatch.no.push(key)
-                    if(userMatch.yes.indexOf(key)!==-1){
-                        userMatch.yes.splice(userMatch.yes.indexOf(key), 1);
-                        checkMatch(userID, key, ans);
+                if(userMatch.no.indexOf(key.toString())===-1){
+                    userMatch.no.push(key.toString())
+                    if(userMatch.yes.indexOf(key.toString())!==-1){
+                        userMatch.yes.splice(userMatch.yes.indexOf(key.toString()), 1);
+                        checkMatch(userID, key.toString(), ans);
                         // harus update chat nya ilang semua klo ada juga 
                     }
                 }
@@ -122,7 +109,7 @@ const clickMatch = async function(req, res){
                 res.status(400);
                 res.send('failed update match')
             }else{
-                res.redirect("/status-match/"+userID);
+                res.redirect("/user-match/status");
             }
         });
     }
@@ -130,10 +117,10 @@ const clickMatch = async function(req, res){
 
 // after press button, can get all status
 const getUserMatch = async function(req, res){
-    const userID = req.params.id;
+    const userID = req.account._id;
     const data = await usersMatch.findOne({'accountId':userID});
-    const pending = await users.find({'accountId':{$in:data.yes}});
-    const reject = await users.find({'accountId':{$in:data.no}});
+    const pending = await users.find({'accountId':{$in:data.yes.map(value=>mongoose.Types.ObjectId(value))}});
+    const reject = await users.find({'accountId':{$in:data.no.map(value=>mongoose.Types.ObjectId(value))}});
     res.render('matchStatus', {data:data, pending:pending, reject:reject});
 };
 
@@ -154,18 +141,18 @@ const matchedClick = async function(req, res){
 const checkMatch = async function(userID, matchID, ans){
     
     console.log('enter');
-    const matchRes = await usersMatch.findOne({'accountId':matchID, 'yes':{$in:userID}});
+    const matchRes = await usersMatch.findOne({'accountId':mongoose.Types.ObjectId(matchID), 'yes':{$in:userID.toString()}});
     // Enable chat 
     if(matchRes){
         if(matchRes.chat.indexOf(userID)===-1){
             if(ans==='yes'){
-                await usersMatch.updateOne({'accountId':matchID}, {$push:{'chat':userID}});
-                await usersMatch.updateOne({'accountId':userID}, {$push:{'chat':matchID}});
+                await usersMatch.updateOne({'accountId':mongoose.Types.ObjectId(matchID)}, {$push:{'chat':userID.toString()}});
+                await usersMatch.updateOne({'accountId':userID}, {$push:{'chat':matchID.toString()}});
             }
         }else{
             if(ans==='no'){
-                await usersMatch.updateOne({'accountId':matchID}, {$pull:{'chat':userID}});
-                await usersMatch.updateOne({'accountId':userID}, {$pull:{'chat':matchID}});
+                await usersMatch.updateOne({'accountId':mongoose.Types.ObjectId(matchID)}, {$pull:{'chat':userID.toString()}});
+                await usersMatch.updateOne({'accountId':userID}, {$pull:{'chat':matchID.toString()}});
             }
         }
     };
@@ -214,10 +201,11 @@ const filterOne = async function(userID){
     const userMatches = await users.find(userQueryObject);
     const userQMatches = await usersAns.find(questionQueryObject);
 
-    const idOne = userMatches.map(value => value.accountId);
-    //console.log(idOne);
-    const idTwo = userQMatches.map(value => value.accountId);
-    //console.log(idTwo);
+    //console.log(userMatches);
+    //console.log(userQMatches);
+
+    const idOne = userMatches.map(value => value.accountId.toString());
+    const idTwo = userQMatches.map(value => value.accountId.toString());
     const matchID = idOne.filter(value => idTwo.includes(value));
 
     return matchID;
@@ -228,26 +216,31 @@ const filterOne = async function(userID){
 const filterTwo = async function(userID, matchID){
 
     const queryID = {accountId: {$in: matchID}};
+    let result = [];
     // query user and other matches
     const user = await usersAns.findOne({accountId:userID});
     const filterOneMatches = await usersAns.find(queryID);
-    let result = []
     let comparison;
     
     // iterate each match from filterOne and calc distance
     filterOneMatches.forEach(match => {
         comparison = {};
-        comparison.id = match.id;
+        comparison.id = match.accountId;
         comparison.distance = euclidean(user.filter2, match.filter2);
         result.push(comparison);
     })
-
     //sort filter_2
-    result.sort(function(a,b){
+    const sortResult = await sortMatch(result);
+
+    return sortResult;
+}
+
+const sortMatch = async function(result){
+    
+    result.sort(function(a, b){
         return a.distance - b.distance;
-    });
-    console.log(result);
-    return result;
+    })
+    return result
 }
 
 // euclidean distance function 

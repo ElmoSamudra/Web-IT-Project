@@ -5,6 +5,14 @@ var userSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectID,
         ref: "Account"
     },
+    firstName: {
+        type: mongoose.Schema.Types.String,
+        ref: "Account"
+    },
+    surName: {
+        type: mongoose.Schema.Types.String,
+        ref: "Account"
+    },
     age: Number,
     gender: String,
     nationality: String,
