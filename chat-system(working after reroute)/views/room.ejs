@@ -5,14 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
   <title>Chat App</title>
-
-  <!-- roomName is passed from server -->
   <script>
-    const roomName = "<%= roomName %>" 
+    const roomName = "<%= roomName %>"
   </script>
-
-  <script defer src="http://localhost:3000/socket.io/socket.io.js"></script>
-  <script defer src="script.js"></script>
+  <script defer src="/socket.io/socket.io.js"></script>
+  <script defer src="/script.js"></script>
   <style>
     body {
       padding: 0;
@@ -21,26 +18,12 @@
       justify-content: center;
     }
 
-    #chat-heading {
-      text-align: center;
-      width: 80%;
-      max-width: 1200px;
-    }
-
-    #connect-link {
-      text-align: center;
-      width: 80%;
-      max-width: 1200px;
-    }
-
     #message-container {
-      text-align: center;
       width: 80%;
       max-width: 1200px;
     }
 
     #message-container div {
-      text-align: center;
       background-color: #CCC;
       padding: 5px;
     }
@@ -65,12 +48,6 @@
   </style>
 </head>
 <body>
-  <!-- <div id="chat-heading">
-    <h1><%= roomName %></h1>
-  </div>
-  <div id="connect-link">
-    <a href="http://localhost:3000/agent">Agent & Utils Connect</a> 
-  </div> -->
   <div id="message-container">
   </div>
   <form id="send-container">
