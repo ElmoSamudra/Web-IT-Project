@@ -1,8 +1,10 @@
 var mongoose = require("mongoose");
-mongoose.connect("mongodb://localhost:27017/roommee_app", {useNewUrlParser: true, useUnifiedTopology: true});
 
 var userQSchema = new mongoose.Schema({
-    id: String,
+    accountId: {
+        type: mongoose.Schema.Types.ObjectID,
+        ref: "Account"
+    },
     filter1: {
         sameNationalityPref: String,
         sameGenderPref: String,
@@ -26,23 +28,23 @@ var userQSchema = new mongoose.Schema({
 
 // userQ.create({
 //     id:"10001",
-//     filter1:{
-//         sameNationalityPref: 'yes',
-//         sameGenderPref: 'yes',
-//         sameLocatoinPref: 'yes',
-//         petsPref: 'yes',
-//         sameLangPref: 'yes',
-//         numRoommeePref: 'yes',
-//         ageDiffRange: [18, 19, 20, 21, 22]
-//     },
-//     filter2:{
-//         homeCookRate: 5,
-//         nightOwlRate: 3,
-//         playsMusicRate: 6,
-//         seekIntrovertRate: 7,
-//         seekExtroverRate: 1,
-//         cleanlinessToleranceRate: 7
-//     }
+    // filter1:{
+    //     sameNationalityPref: 'yes',
+    //     sameGenderPref: 'yes',
+    //     sameLocatoinPref: 'yes',
+    //     petsPref: 'yes',
+    //     sameLangPref: 'yes',
+    //     numRoommeePref: 'yes',
+    //     ageDiffRange: [18, 19, 20, 21, 22]
+    // },
+    // filter2:{
+    //     homeCookRate: 5,
+    //     nightOwlRate: 3,
+    //     playsMusicRate: 6,
+    //     seekIntrovertRate: 7,
+    //     seekExtroverRate: 1,
+    //     cleanlinessToleranceRate: 7
+    // }
 // }, function(err, user){
 //     if(err){
 //         console.log("FAILED MAKING NEW USER")

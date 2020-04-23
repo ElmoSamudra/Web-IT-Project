@@ -1,11 +1,14 @@
 var mongoose = require("mongoose");
-mongoose.connect("mongodb://localhost:27017/roommee_app", {useNewUrlParser: true, useUnifiedTopology: true});
 
 var matchSchema = new mongoose.Schema({
-    id: String,
+    accountId: {
+        type: mongoose.Schema.Types.ObjectID,
+        ref: "Account"
+    },
     yes:[String],
     no:[String],
-    chat:[String]
+    chat:[String],
+    clickedMatch:String
 });
 
 // compile the model into variable User (User takes the Schema pattern)
