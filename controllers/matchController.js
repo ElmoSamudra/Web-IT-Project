@@ -163,6 +163,7 @@ const matchConfirmation = async function (req, res){
     }
 }
 
+// remove roommee
 const removeRoommee = async function (req, res){
     await usersMatch.updateOne({'accountId':req.account._id}, {$set:{'clickedMatch':'none'}});
     await users.updateOne({'accountId':req.account._id}, {$set:{'roommee':'none'}});
