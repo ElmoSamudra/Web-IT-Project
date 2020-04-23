@@ -163,6 +163,17 @@ const matchConfirmation = async function (req, res){
     }
 }
 
+const removeRoommee = async function (req, res){
+    await usersMatch.updateOne({'accountId':req.account._id}, {$set:{'clickedMatch':'none'}});
+    await users.updateOne({'accountId':req.account._id}, {$set:{'roommee':'none'}});
+    const confirm = await usersMatch.findOne({'accountId':req.account._id});
+    if(confirm.clickedMatch==='none'){
+        res.send('Roommee has been removed, please find a new one');
+    }else{
+        console.log(confirm);
+        res.send('failed to remove roommee, please try again');
+    }
+}
 // -------------------------------Helper Function-------------------------------- 
 
 // check if there is a chat match
@@ -287,5 +298,6 @@ module.exports={
     clickMatch,
     getUserMatch,
     matchedClick,
-    matchConfirmation
+    matchConfirmation,
+    removeRoommee
 };

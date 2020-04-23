@@ -17,5 +17,7 @@ matchRouter.post("/fill-status",auth, (req, res) => {matchController.clickMatch(
 matchRouter.post("/click-match",auth, (req, res) => {matchController.matchedClick(req, res)});
 // check for match confirmation
 matchRouter.get("/check-match", auth, (req, res) => {matchController.matchConfirmation(req, res)});
+// remove a roommee
+matchRouter.post("/remove-match", auth, (req, res) => {matchController.removeRoommee(req, res)});
 
 module.exports = matchRouter;
