@@ -52,7 +52,8 @@ const clickMatch = async function(req, res){
             accountId:req.account._id,
             yes:[],
             no:[],
-            chat:[]
+            chat:[],
+            clickedMatch:"none"
         });
 
         // loop each match id
@@ -124,15 +125,42 @@ const getUserMatch = async function(req, res){
     res.render('matchStatus', {data:data, pending:pending, reject:reject});
 };
 
+// update if there is a match for roommee
 const matchedClick = async function(req, res){
     
+    // should wait until the other user clicked the roommee button first to indicate
+    // a match, just update in each account.
+
     const userOne = req.account._id;
-    const userTwo = req.params.matchID;
 
-    await users.updateOne({accountId:userOne}, {'roommee':userTwo});
-    await users.updateOne({accountId:userTwo}, {'roommee':userOne});
+    // this one is in string
+    const userTwo = req.body.accountId;
 
-    res.send('You have found your roommee: '+userTwo);
+    const checkMatchClicked = await usersMatch.findOne({"accountId":userOne, "clickedMatch":"none", 'chat':{$in:[userTwo]}});
+    
+    if(checkMatchClicked){
+        await usersMatch.updateOne({accountId:userOne}, {'clickedMatch':userTwo});
+        //await users.updateOne({accountId:userTwo}, {'roommee':userOne});
+
+        res.send('You have found your roommee please wait for confirmation');
+    }else{
+        res.send("You already have a roommee, please remove them first");
+    }
+    
+}
+
+// checking for confirmation from the other roommee
+const matchConfirmation = async function (req, res){
+    
+    const currentUser = await usersMatch.findOne({'accountId':req.account._id});
+    const matchUser = await usersMatch.findOne({'accountId':mongoose.Types.ObjectId(currentUser.clickedMatch), clickedMatch:{$in:req.account._id.toString()}}).populate("name").exec();
+
+    if(matchUser){
+        await users.updateOne({accountId:req.account._id}, {'roommee':matchUser.accountId});
+        res.send(matchUser.accountId + " is you roommate now, time to meet an agent");
+    }else{
+        res.send('Please wait for your roommee confirmation');
+    }
 }
 
 // -------------------------------Helper Function-------------------------------- 
@@ -258,5 +286,6 @@ module.exports={
     runMatchAlgo,
     clickMatch,
     getUserMatch,
-    matchedClick
+    matchedClick,
+    matchConfirmation
 };

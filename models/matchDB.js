@@ -7,7 +7,8 @@ var matchSchema = new mongoose.Schema({
     },
     yes:[String],
     no:[String],
-    chat:[String]
+    chat:[String],
+    clickedMatch:String
 });
 
 // compile the model into variable User (User takes the Schema pattern)
