@@ -4,10 +4,10 @@
 <p><i>These profiles has been sorted from the closest to least match</i></p>
 <h3>Profile</h3>
 
-<form action="/user-match/fill-status/<%=idUser%>" method='POST'>
+<form action="/user-match/fill-status/" method='POST'>
     <ol>
     <% sortedMatchUser.forEach(function(matchUser){ %>
-        <li>Name: <%=matchUser.firstName+" "+matchUser.lastName%></li>
+        <li>Name: <%=matchUser.firstName+" "+matchUser.surName%></li>
         <ul>
             <li>Gender: <%=matchUser.gender%></li>
             <li>Nationality: <%=matchUser.nationality%></li>
@@ -16,7 +16,7 @@
             <li>Find a place to stay in: <%=matchUser.preferStay%></li>
         </ul>
         <label>Ring Roommee?</label>
-        <input type="text" name = "<%=matchUser.id%>" placeholder = "yes or no" required>
+        <input type="text" name = "<%=matchUser.accountId%>" placeholder = "yes or no" required>
         
     <%})%>
     </ol>

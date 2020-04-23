@@ -3,11 +3,11 @@
 <h1>Match Status</h1>
 <h3>Profile</h3>
 
-<form action="/user-match/fill-status/<%=data.id%>" method='POST'>
+<form action="/fill-status-match/<%=data.id%>" method='POST'>
     
     <ol>
     <% pending.forEach(function(pendingYes){ %>
-        <li>Name: <%=pendingYes.firstName+" "+pendingYes.lastName%></li>
+        <li>Name: <%=pendingYes.firstName+" "+pendingYes.surName%></li>
         <ul>
             <li>Gender: <%=pendingYes.gender%></li>
             <li>Nationality: <%=pendingYes.nationality%></li>
@@ -16,9 +16,11 @@
             <li>Find a place to stay in: <%=pendingYes.preferStay%></li>
         </ul>
         <label>Ring Roommee?</label>
-        <input type="text" name = "<%=pendingYes.id%>" value ="yes" required>
-        <% if(data.chat.indexOf(pendingYes.id)===-1){ %>
+        <input type="text" name = "<%=pendingYes.accountId%>" value ="yes" required>
+        <% if(data.chat.indexOf(pendingYes.accountId.toString())===-1){ %>
             <p>Pending Invitation</p>
+        <%}else if(data.clickedMatch===pendingYes.accountId.toString()){%>
+            <p>Roommee :)</p>
         <%}else{%>
             <p>Go and Say HI!</p>
             <button formaction = "/chat" formmethod='GET'>Chat</button>

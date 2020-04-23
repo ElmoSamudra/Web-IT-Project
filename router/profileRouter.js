@@ -5,16 +5,17 @@ const profileRouter = express.Router();
 
 // get controller
 const profileController = require('../controllers/profileController.js');
+const auth = require("../middleware/authentication");
 
 // fill the user profile
-profileRouter.get("/new", (req, res) => {res.render("profileForm")});
+//profileRouter.get("/new",auth, (req, res) => {res.render("profileForm")});
 // save the user profile
-profileRouter.post("/new", (req, res) => {profileController.newUserProfile(req, res)});
+profileRouter.post("/new",auth, (req, res) => {profileController.newUserProfile(req, res)});
 // get the profile for user
-profileRouter.get("/:id", (req, res) => {profileController.getUserProfile(req, res)});
+profileRouter.get("/",auth, (req, res) => {profileController.getUserProfile(req, res)});
 // fill the update for user profile 
-profileRouter.get("/update/:id", (req, res) => {profileController.updateRedirect(req, res)});
+profileRouter.get("/update",auth, (req, res) => {profileController.updateRedirect(req, res)});
 // update the user profile
-profileRouter.post("/update/:id", (req, res) => {profileController.updateUserProfile(req, res)});
+profileRouter.post("/update",auth, (req, res) => {profileController.updateUserProfile(req, res)});
 
 module.exports = profileRouter;

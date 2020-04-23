@@ -1,46 +1,48 @@
 // get the questionaire answer
 //var usersAns = require("../model/usersQuestionaire");
 //var users = require("../model/users");
-var usersAns = require("../model/userQDB.js");
+var usersAns = require("../models/userQDB.js");
 
 const getUserQuestionaire = (req, res) => {
-    const userID = req.params.id;
+    const userID = req.account._id;
     
     // query the specified id
-    usersAns.findOne({'id':userID}, (err, userQuestionaire) => {
+    usersAns.findOne({'accountId':userID}, (err, userQuestionaire) => {
         if(err){
             res.status(400);
             res.send('Get questionaire failed');
         }else{
             if(userQuestionaire){
-                console.log("Get the user questionaire for "+userID);
-                res.render("userQuestionaire", {userQuestionaire:userQuestionaire});
+                console.log("Get the user questionaire");
+                res.send(userQuestionaire);
+                /*res.render("userQuestionaire", {userQuestionaire:userQuestionaire});*/
             }else{
-                console.log("Creating new questionaire for "+userID);
-                res.redirect("/user-questionaire/new/"+userID);
+                console.log("need to create user questionaire");
+                res.send("Please create a user questionaire first");
+                // res.redirect("/user-questionaire/new");
             }
         }
     });
 }
 
+//Part relevant for the front end phase
 const updateQuestionaireRedirect = (req, res) => {
 
-    const userID = req.params.id;
-    usersAns.findOne({'id':userID}, (err, qAns) => {
+    const userID = req.account._id;
+    usersAns.findOne({'accountId':userID}, (err, qAns) => {
         if(err){
             res.status(400);
             res.send('Update redirect failed');
         }else{
-            console.log("Updating user questionaire for "+userID);
+            //console.log("Update questionaire redirect");
             res.render("userQuestionaireUpdate", {qAns:qAns});
         }
     });
 }
 
 const updateUserQuestionaire = (req, res) => {
-    
-    const userID = req.params.id;
-    
+
+    const userID = req.account._id;
     // set the update object
     let updateQuestionaire = {};
     
@@ -62,23 +64,28 @@ const updateUserQuestionaire = (req, res) => {
     updateQuestionaire['filter2.cleanlinessToleranceRate'] = req.body.cleanlinessToleranceRate;
 
     // update the user questionaire
-    usersAns.updateOne({'id':userID}, {$set:updateQuestionaire}, function(err, user){
+    usersAns.updateOne({'accountId':userID}, {$set:updateQuestionaire}, function(err, user){
         if(err){
             res.status(400);
             res.send('Questionaire update failed');
         }else{
-            console.log('Updated '+userID+' questionaire');
-            res.redirect('/user-questionaire/'+userID);
+            console.log('Updated questionaire');
+            res.send('Update Questionaire Completed');
+            //res.redirect('/questionaire/'+userID);
         }
     });
 }
 
 // create the function to record all answered questionaire
-const addAnswerQ = (req, res) => {
+const addAnswerQ = async (req, res) => {
     
+    const findQ = await usersAns.findOne({"accountId":req.account._id});
+    if(findQ){
+        return res.send('User already created user questionaire, please to update instead');
+    }
     let newUserQ = new usersAns
         ({
-            id: req.params.id,
+            accountId: req.account._id,
             filter1:{
                 sameNationalityPref: req.body.sameNationalityPref,
                 sameGenderPref: req.body.sameGenderPref,
@@ -102,8 +109,9 @@ const addAnswerQ = (req, res) => {
                 res.status(400);
                 res.send('Create new user questionaire failed');
             }else{
-                console.log('Creating new user questionaire for '+userID);
-                res.redirect('/user-questionaire/'+userQ.id);
+                console.log('Created new user questionaire');
+                res.send(userQ)
+                //res.redirect('/questionaire/'+userQ._id);
             }
         });
 };
