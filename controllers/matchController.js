@@ -162,6 +162,7 @@ const matchedClick = async function(req, res){
 // remove the match clikced
 const removeMatchClicked = async function(req, res){
 
+    // use this when the invitation for roommee is still pending
     await usersMatch.updateOne({'accountId':req.account._id}, {$set:{'clickedMatch':"none"}});
     res.send('You have undo your clicked match');
     //const currentUser = await userMatch.function({'accountId':req.account._id});
