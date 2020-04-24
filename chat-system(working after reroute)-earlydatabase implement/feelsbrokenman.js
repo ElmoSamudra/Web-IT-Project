@@ -54,15 +54,17 @@ app.get('/createroom/:room', (req, res) => {
 
 
 // redirect to new room after creating new room
-app.get('/chatrooms/:room', (req, res) => {
+app.get('/chatrooms/:room', async (req, res) => {
   if (rooms[req.params.room] == null) {
     return res.redirect('/chatrooms')
   }
   console.log('get chatroom/room')
+  var chatroomDB = await Chatroom.find({ name: req.params.room })
   res.render('room', { 
     roomName: req.params.room, 
     userName: "JON",
-    userId: "ASA"
+    userId: "ASA",
+    chatHistory: chatroomDB.messages
   })
 })
 
@@ -79,22 +81,34 @@ io.on('connection', socket => {
     console.log(`new-user ${room} ${name}`);
     socket.join(room)
     rooms[room].users[socket.id] = name
-    socket.to(room).broadcast.emit('user-connected', name)
 
     //add user to chatroom database
-    let chatroomDB = await Chatroom.findOne({ name: room })
-    console.log(chatroomDB)
+    var chatroomDB = await Chatroom.find({ name: room })
     if (chatroomDB.users.indexOf(userId) === -1){
       console.log("user joined" + room)
       await Chatroom.updateOne({ name:room }, {$push:{users: userId}})
     }
 
-    
-  })
-  socket.on('send-chat-message', (room, message) => {
-    console.log(`chat-message ${room} ${message}`);
-    socket.to(room).broadcast.emit('chat-message', { message: message, name: rooms[room].users[socket.id] })
+    //broadcast
+    socket.to(room).broadcast.emit('user-connected', name)
 
+  })
+  socket.on('send-chat-message', async (room, message) => {
+    console.log(`chat-message ${room} ${message}`);
+
+    //add message to database
+    await Chatroom.updateOne(
+      { name:room }, 
+      {$push: {
+        messages: {
+          from: rooms[room].users[socket.id],
+          body: message
+        }
+      }
+    })
+
+    //broadcast message
+    socket.to(room).broadcast.emit('chat-message', { message: message, name: rooms[room].users[socket.id] })
   })
   socket.on('disconnect', () => {
     getUserRooms(socket).forEach(room => {

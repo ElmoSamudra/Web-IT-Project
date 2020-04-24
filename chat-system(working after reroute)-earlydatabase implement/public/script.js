@@ -15,7 +15,7 @@ const messageInput = document.getElementById('message-input')
 if (messageForm != null) {
   const name = userName
   appendMessage('You joined')
-  socket.emit('new-user', roomName, name)
+  socket.emit('new-user', roomName, name, userId)
   
   messageForm.addEventListener('submit', e => {
     e.preventDefault()
