@@ -18,8 +18,10 @@ matchRouter.post("/click-match",auth, (req, res) => {matchController.matchedClic
 // check for match confirmation
 matchRouter.get("/check-match", auth, (req, res) => {matchController.matchConfirmation(req, res)});
 // remove a roommee
-matchRouter.post("/remove-match", auth, (req, res) => {matchController.removeRoommee(req, res)});
+matchRouter.post("/remove-roommee", auth, (req, res) => {matchController.removeRoommee(req, res)});
 // remove match clicked
-matchRouter.post("/remove-match-clicked", auth, (req,res) => {matchController.removeMatchClicked(req, res)});
+matchRouter.post("/remove-match", auth, (req,res) => {matchController.removeMatchClicked(req, res)});
+// get the user roommee profile
+matchRouter.get("/roommee", auth, (req, res) => {matchController.getMyRoommee(req, res)});
 
 module.exports = matchRouter;
