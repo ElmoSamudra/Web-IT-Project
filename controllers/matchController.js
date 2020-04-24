@@ -140,31 +140,51 @@ const matchedClick = async function(req, res){
     
     if(checkMatchClicked){
         await usersMatch.updateOne({accountId:userOne}, {'clickedMatch':userTwo});
+        const confirm = await matchConfirmation(req.account._id);
+
+        // check one more time if it still work or not
+        if(confirm==='confirmed'){
+            res.send(userTwo + " is you roommate now, time to meet an agent");
+        }else{
+            res.send('Please wait for your roommee confirmation');
+        }
+
+        // coba masukin match confirmation nya disini aja
         //await users.updateOne({accountId:userTwo}, {'roommee':userOne});
 
-        res.send('You have found your roommee please wait for confirmation');
+        //res.send('You have found your roommee please wait for confirmation');
     }else{
         res.send("You already have a roommee, please remove them first");
     }
     
 }
 
+const removeMatchClicked = async function(req, res){
+
+    await usersMatch.updateOne({'accountId':req.account._id}, {$set:{'clickedMatch':"none"}});
+    res.send('You have undo your clicked match');
+    //const currentUser = await userMatch.function({'accountId':req.account._id});
+
+}
+
 // checking for confirmation from the other roommee
-const matchConfirmation = async function (req, res){
+const matchConfirmation = async function (accountId){
     
-    const currentUser = await usersMatch.findOne({'accountId':req.account._id});
-    const matchUser = await usersMatch.findOne({'accountId':mongoose.Types.ObjectId(currentUser.clickedMatch), clickedMatch:{$in:req.account._id.toString()}}).populate("name").exec();
+    const currentUser = await usersMatch.findOne({'accountId':accountId});
+    const matchUser = await usersMatch.findOne({'accountId':mongoose.Types.ObjectId(currentUser.clickedMatch), clickedMatch:{$in:accountId.toString()}});
 
     if(matchUser){
-        await users.updateOne({accountId:req.account._id}, {'roommee':matchUser.accountId});
-        res.send(matchUser.accountId + " is you roommate now, time to meet an agent");
+        await users.updateOne({'accountId':accountId}, {'roommee':matchUser.accountId});
+        await users.updateOne({'accountId':mongoose.Types.ObjectId(currentUser.clickedMatch)}, {'roommee':accountId});
+        return 'confirmed'
     }else{
-        res.send('Please wait for your roommee confirmation');
+        return 'not-confirmed'
     }
 }
 
 // remove roommee
 const removeRoommee = async function (req, res){
+    // ini keknya perlu confirmation juga deh, tambahin!!!
     await usersMatch.updateOne({'accountId':req.account._id}, {$set:{'clickedMatch':'none'}});
     await users.updateOne({'accountId':req.account._id}, {$set:{'roommee':'none'}});
     const confirm = await usersMatch.findOne({'accountId':req.account._id});
@@ -299,6 +319,6 @@ module.exports={
     clickMatch,
     getUserMatch,
     matchedClick,
-    matchConfirmation,
-    removeRoommee
+    removeRoommee,
+    removeMatchClicked
 };
