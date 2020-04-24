@@ -59,7 +59,7 @@ app.get('/chatrooms/:room', async (req, res) => {
     return res.redirect('/chatrooms')
   }
   console.log('get chatroom/room')
-  var chatroomDB = await Chatroom.find({ name: req.params.room })
+  let chatroomDB = await Chatroom.find({ name: req.params.room })
   res.render('room', { 
     roomName: req.params.room, 
     userName: "JON",

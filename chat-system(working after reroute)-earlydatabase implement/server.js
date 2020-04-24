@@ -54,17 +54,23 @@ app.get('/createroom/:room', (req, res) => {
 
 
 // redirect to new room after creating new room
-app.get('/chatrooms/:room', (req, res) => {
+app.get('/chatrooms/:room', async (req, res) => {
   if (rooms[req.params.room] == null) {
     return res.redirect('/chatrooms')
   }
   console.log('get chatroom/room')
+  let chatroomDB = await Chatroom.findOne({ name: req.params.room })
   res.render('room', { 
     roomName: req.params.room, 
     userName: "JON",
-    userId: "ASA"
+    userId: "MOM",
+    chatHistory: chatroomDB.messages
   })
 })
+
+// app.get('/delete/:room', (req, res) =>{
+
+// })
 
 server.listen(3000)
 
@@ -83,7 +89,7 @@ io.on('connection', socket => {
 
     //add user to chatroom database
     let chatroomDB = await Chatroom.findOne({ name: room })
-    console.log(chatroomDB)
+
     if (chatroomDB.users.indexOf(userId) === -1){
       console.log("user joined" + room)
       await Chatroom.updateOne({ name:room }, {$push:{users: userId}})
@@ -91,10 +97,18 @@ io.on('connection', socket => {
 
     
   })
-  socket.on('send-chat-message', (room, message) => {
+  socket.on('send-chat-message', async (room, message) => {
     console.log(`chat-message ${room} ${message}`);
     socket.to(room).broadcast.emit('chat-message', { message: message, name: rooms[room].users[socket.id] })
 
+    //add message to database
+    let chatroomDB = await Chatroom.findOne({ name: room })
+
+    await Chatroom.updateOne(
+      { name:room }, 
+      {$push:{ messages:{ from: rooms[room].users[socket.id], body: message}
+      }}
+    )       
   })
   socket.on('disconnect', () => {
     getUserRooms(socket).forEach(room => {

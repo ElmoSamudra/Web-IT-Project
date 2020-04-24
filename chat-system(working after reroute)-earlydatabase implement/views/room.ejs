@@ -52,7 +52,11 @@
 <body>
   <a href="/agent-utils">Connect agent and utils now</a>
   <div id="message-container">
-    
+    <% if(chatHistory !== undefined){ %>
+      <% chatHistory.forEach(messageObject => { %>
+        <div><%= `${messageObject.from}: ${messageObject.body}`%></div>
+      <% }) %>
+    <% } %>
   </div>
   <form id="send-container">
     <input type="text" id="message-input">
