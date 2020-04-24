@@ -140,23 +140,35 @@ const matchedClick = async function(req, res){
     
     if(checkMatchClicked){
         await usersMatch.updateOne({accountId:userOne}, {'clickedMatch':userTwo});
+        await matchConfirmation();
+
+        // coba masukin match confirmation nya disini aja
         //await users.updateOne({accountId:userTwo}, {'roommee':userOne});
 
-        res.send('You have found your roommee please wait for confirmation');
+        //res.send('You have found your roommee please wait for confirmation');
     }else{
         res.send("You already have a roommee, please remove them first");
     }
     
 }
 
+const removeMatchClicked = async function(req, res){
+
+    await updateOne({'accountId':req.account._id}, {$set:{'clickedMatch':"none"}});
+    res.send('You have undo your clicked match');
+    //const currentUser = await userMatch.function({'accountId':req.account._id});
+
+}
+
 // checking for confirmation from the other roommee
 const matchConfirmation = async function (req, res){
     
     const currentUser = await usersMatch.findOne({'accountId':req.account._id});
-    const matchUser = await usersMatch.findOne({'accountId':mongoose.Types.ObjectId(currentUser.clickedMatch), clickedMatch:{$in:req.account._id.toString()}}).populate("name").exec();
+    const matchUser = await usersMatch.findOne({'accountId':mongoose.Types.ObjectId(currentUser.clickedMatch), clickedMatch:{$in:req.account._id.toString()}});
 
     if(matchUser){
-        await users.updateOne({accountId:req.account._id}, {'roommee':matchUser.accountId});
+        await users.updateOne({'accountId':req.account._id}, {'roommee':matchUser.accountId});
+        await users.updateOne({'accountId':mongoose.Types.ObjectId(currentUser.clickedMatch)}, {'roommee':req.account._id});
         res.send(matchUser.accountId + " is you roommate now, time to meet an agent");
     }else{
         res.send('Please wait for your roommee confirmation');
@@ -165,6 +177,7 @@ const matchConfirmation = async function (req, res){
 
 // remove roommee
 const removeRoommee = async function (req, res){
+    // ini keknya perlu confirmation juga deh, tambahin!!!
     await usersMatch.updateOne({'accountId':req.account._id}, {$set:{'clickedMatch':'none'}});
     await users.updateOne({'accountId':req.account._id}, {$set:{'roommee':'none'}});
     const confirm = await usersMatch.findOne({'accountId':req.account._id});
@@ -300,5 +313,6 @@ module.exports={
     getUserMatch,
     matchedClick,
     matchConfirmation,
-    removeRoommee
+    removeRoommee,
+    removeMatchClicked
 };

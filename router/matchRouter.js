@@ -19,5 +19,7 @@ matchRouter.post("/click-match",auth, (req, res) => {matchController.matchedClic
 matchRouter.get("/check-match", auth, (req, res) => {matchController.matchConfirmation(req, res)});
 // remove a roommee
 matchRouter.post("/remove-match", auth, (req, res) => {matchController.removeRoommee(req, res)});
+// remove match clicked
+matchRouter.post("/remove-match-clicked", auth, (req, res) => {matchController.removeMatchClicked(req, res)});
 
 module.exports = matchRouter;
