@@ -3,8 +3,6 @@ const app = express()
 const server = require('http').Server(app)
 const io = require('socket.io')(server)
 
-
-
 app.set('views', './views')
 app.set('view engine', 'ejs')
 app.use(express.static('public'))
@@ -19,54 +17,16 @@ require("./model/connectDB");
 const rooms = { }
 
 // index page
-app.get('/chatrooms', (req, res) => {
-  console.log(rooms);
-  res.render('index', { rooms: rooms })
-})
+app.get('/chatrooms', (req, res) => { res.render('index', { rooms: rooms }) })
 
 // generate new room
-app.get('/createroom/:room', (req, res) => {
-  if (rooms[req.params.room] != null) {
-    return res.redirect('/chatrooms')
-  }
-  rooms[req.params.room] = { users: {} }
-  
-  console.log(req.params.room);
-
-  //createroom at database
-  let newChatroom = new Chatroom({});
-
-  newChatroom.name = req.params.room
-  newChatroom.users = [];
-  newChatroom.messages = [];
-
-  // save the new chatroom
-  newChatroom.save(function (err, chatroom){
-    if(err){
-        console.error('error when creating room');
-    }else{
-        console.log(" chatroom created.: " + chatroom);
-    }
-  });
-
-  res.redirect(`/chatrooms/${req.params.room}`)
-})
-
+app.get('/createroom/:room', (req, res) => { createRoom(req, res); })
 
 // redirect to new room after creating new room
-app.get('/chatrooms/:room', async (req, res) => {
-  if (rooms[req.params.room] == null) {
-    return res.redirect('/chatrooms')
-  }
-  console.log('get chatroom/room')
-  let chatroomDB = await Chatroom.findOne({ name: req.params.room })
-  res.render('room', { 
-    roomName: req.params.room, 
-    userName: "JON",
-    userId: "MOM",
-    chatHistory: chatroomDB.messages
-  })
-})
+app.get('/chatrooms/:room', (req, res) => { getRoom(req, res); })
+
+
+
 
 // app.get('/delete/:room', (req, res) =>{
 
@@ -94,9 +54,8 @@ io.on('connection', socket => {
       console.log("user joined" + room)
       await Chatroom.updateOne({ name:room }, {$push:{users: userId}})
     }
-
-    
   })
+
   socket.on('send-chat-message', async (room, message) => {
     console.log(`chat-message ${room} ${message}`);
     socket.to(room).broadcast.emit('chat-message', { message: message, name: rooms[room].users[socket.id] })
@@ -110,6 +69,7 @@ io.on('connection', socket => {
       }}
     )       
   })
+
   socket.on('disconnect', () => {
     getUserRooms(socket).forEach(room => {
       socket.to(room).broadcast.emit('user-disconnected', rooms[room].users[socket.id])
@@ -118,10 +78,59 @@ io.on('connection', socket => {
   })
 })
 
+
+
+
+
+/* --------------------------- FUNCTIONS --------------------------*/
+
+
 // get the users in room
 function getUserRooms(socket) {
   return Object.entries(rooms).reduce((names, [name, room]) => {
     if (room.users[socket.id] != null) names.push(name)
     return names
   }, [])
+}
+
+
+async function getRoom(req, res) {
+  if (rooms[req.params.room] == null) {
+    return res.redirect('/chatrooms')
+  }
+  console.log('get chatroom/room')
+  let chatroomDB = await Chatroom.findOne({ name: req.params.room })
+  res.render('room', { 
+    roomName: req.params.room, 
+    userName: "JON",
+    userId: "MOM",
+    chatHistory: chatroomDB.messages
+  })
+}
+
+async function createRoom(req, res) {
+  if (rooms[req.params.room] != null) {
+    return res.redirect('/chatrooms')
+  }
+  rooms[req.params.room] = { users: {} }
+  
+  console.log(req.params.room);
+
+  //createroom at database
+  let newChatroom = new Chatroom({});
+
+  newChatroom.name = req.params.room
+  newChatroom.users = [];
+  newChatroom.messages = [];
+
+  // save the new chatroom
+  newChatroom.save(function (err, chatroom){
+    if(err){
+        console.error('error when creating room');
+    }else{
+        console.log(" chatroom created.: " + chatroom);
+    }
+  });
+
+  res.redirect(`/chatrooms/${req.params.room}`)
 }
