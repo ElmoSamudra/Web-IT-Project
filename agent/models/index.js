@@ -1,8 +1,8 @@
-require('dotenv').config()
+//require('dotenv').config()
 const mongoose = require("mongoose");
 // Connect to MongoDB --- Replace this with your Connection String
-CONNECTION_STRING = "mongodb+srv://Shawn:<password>@cluster0-m0kei.mongodb.net/test?retryWrites=true&w=majority";
-MONGO_URL =
+CONNECTION_STRING = "mongodb+srv://rahimz:<password>@cluster0-h2hfp.mongodb.net/test?retryWrites=true&w=majority";
+MONGO_URL = "mongodb+srv://rahimz:ZzVlZmbhob0Sc3jp@cluster0-h2hfp.mongodb.net/test?retryWrites=true&w=majority"
 CONNECTION_STRING.replace("<password>",process.env.MONGO_PASSWORD);
 mongoose.connect(MONGO_URL || "mongodb://localhost/info30005", {
  useNewUrlParser: true,
@@ -20,4 +20,4 @@ db.once("open", async () => {
  console.log("Mongo connection started on " + db.host + ":" +
 db.port);
 });
-require("./author");
+require("./agent");
