@@ -136,9 +136,11 @@ const matchedClick = async function(req, res){
 
     // this one is in string
     const userTwo = req.body.accountId;
+    console.log(userTwo);
 
     const checkMatchClicked = await usersMatch.findOne({"accountId":userOne, "clickedMatch":"none", 'chat':{$in:[userTwo]}});
-    
+    console.log(checkMatchClicked);
+
     if(checkMatchClicked){
         await usersMatch.updateOne({accountId:userOne}, {'clickedMatch':userTwo});
         const confirm = await matchConfirmation(req.account._id);
@@ -151,6 +153,7 @@ const matchedClick = async function(req, res){
         }
 
     }else{
+        // This should happen in the chat
         res.send("You already have a roommee, please remove them first");
     }
     
