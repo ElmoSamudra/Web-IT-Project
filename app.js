@@ -1,29 +1,35 @@
-const express = require('express'),
-      app = express(),
-      bodyParser = require('body-parser'),
-      profileRouter = require("./router/profileRouter");
-      questionaireRouter = require("./router/questionaireRouter");
-      matchRouter = require("./router/matchRouter");
-      router = require('./router');
+const express = require('express');
+const bodyParser = require('body-parser');
 
+
+//Connect to database in MongoDB Atlas upon start of application
+require('./db/mongoose');
+const app = express();
 app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({extended:true}));
-
-// inlcude ejs for all view
+app.use(bodyParser.urlencoded({extended: true}));
 app.set("view engine", "ejs");
 
-// homepage
-app.get('/', (req, res) =>{
-    res.render("loginPage");
+//Set up routes
+const accountRouter = require('./routes/accountRouter');
+const verificationRouter = require('./routes/verificationRouter');
+const profileRouter = require("./routes/profileRouter");
+const questionaireRouter = require("./routes/questionaireRouter");
+const matchRouter = require("./routes/matchRouter");
+
+//Home page
+app.get('/', (req, res) => {
+    //var fullUrl = req.protocol + '://' + req.get('host') + req.originalUrl;
+    res.send("<h1>Welcome to Roommee</h1>");
 });
 
-// link directly to router 
+//Routers
+app.use('/account-management', accountRouter);
+app.use('/verification-management', verificationRouter)
 app.use('/user-profile', profileRouter);
 app.use('/user-questionaire', questionaireRouter);
 app.use('/user-match', matchRouter);
-app.use('/', router);
 
-// () => equivalent to function(){}
-app.listen(3000, () => {
-  console.log('The Roommee app is listening on port 3000!')
-});
+//Launch server
+app.listen(process.env.PORT || 3000, () => {
+    console.log("The flatmate app is running!");
+})

@@ -53,7 +53,8 @@ const clickMatch = async function(req, res){
             yes:[],
             no:[],
             chat:[],
-            clickedMatch:"none"
+            clickedMatch:"none",
+            changeRoommee:false
         });
 
         // loop each match id
@@ -140,53 +141,101 @@ const matchedClick = async function(req, res){
     
     if(checkMatchClicked){
         await usersMatch.updateOne({accountId:userOne}, {'clickedMatch':userTwo});
-        await matchConfirmation();
+        const confirm = await matchConfirmation(req.account._id);
 
-        // coba masukin match confirmation nya disini aja
-        //await users.updateOne({accountId:userTwo}, {'roommee':userOne});
+        // check one more time if it still work or not
+        if(confirm==='confirmed'){
+            res.send(userTwo + " is you roommate now, time to meet an agent");
+        }else{
+            res.send('Please wait for your roommee confirmation');
+        }
 
-        //res.send('You have found your roommee please wait for confirmation');
     }else{
         res.send("You already have a roommee, please remove them first");
     }
     
 }
 
+// remove the match clikced
 const removeMatchClicked = async function(req, res){
 
-    await updateOne({'accountId':req.account._id}, {$set:{'clickedMatch':"none"}});
+    await usersMatch.updateOne({'accountId':req.account._id}, {$set:{'clickedMatch':"none"}});
     res.send('You have undo your clicked match');
     //const currentUser = await userMatch.function({'accountId':req.account._id});
 
 }
 
 // checking for confirmation from the other roommee
-const matchConfirmation = async function (req, res){
+const matchConfirmation = async function (accountId){
     
-    const currentUser = await usersMatch.findOne({'accountId':req.account._id});
-    const matchUser = await usersMatch.findOne({'accountId':mongoose.Types.ObjectId(currentUser.clickedMatch), clickedMatch:{$in:req.account._id.toString()}});
+    const currentUser = await usersMatch.findOne({'accountId':accountId});
+    const matchUser = await usersMatch.findOne({'accountId':mongoose.Types.ObjectId(currentUser.clickedMatch), clickedMatch:{$in:accountId.toString()}});
 
     if(matchUser){
-        await users.updateOne({'accountId':req.account._id}, {'roommee':matchUser.accountId});
-        await users.updateOne({'accountId':mongoose.Types.ObjectId(currentUser.clickedMatch)}, {'roommee':req.account._id});
-        res.send(matchUser.accountId + " is you roommate now, time to meet an agent");
+        await users.updateOne({'accountId':accountId}, {'roommee':matchUser.accountId});
+        await users.updateOne({'accountId':mongoose.Types.ObjectId(currentUser.clickedMatch)}, {'roommee':accountId});
+        return 'confirmed'
     }else{
-        res.send('Please wait for your roommee confirmation');
+        return 'not-confirmed'
     }
 }
 
 // remove roommee
 const removeRoommee = async function (req, res){
     // ini keknya perlu confirmation juga deh, tambahin!!!
-    await usersMatch.updateOne({'accountId':req.account._id}, {$set:{'clickedMatch':'none'}});
-    await users.updateOne({'accountId':req.account._id}, {$set:{'roommee':'none'}});
-    const confirm = await usersMatch.findOne({'accountId':req.account._id});
-    if(confirm.clickedMatch==='none'){
-        res.send('Roommee has been removed, please find a new one');
+    
+    const user = await users.findOne({'accountId':req.account._id});
+    const confirm = await removeConfirmation(req, res, user);
+    
+    if(confirm==='remove'){
+
+        // update removal for other match user as well
+        await usersMatch.updateOne({'accountId':mongoose.Types.ObjectId(user.roommee)}, {$set:{'clickedMatch':'none', 'changeRoommee':false}});
+        await users.updateOne({'accountId':mongoose.Types.ObjectId(user.roommee)}, {$set:{'roommee':'none'}});
+        
+        // update removal for the user
+        await usersMatch.updateOne({'accountId':req.account._id}, {$set:{'clickedMatch':'none', 'changeRoommee':false}});
+        await users.updateOne({'accountId':req.account._id}, {$set:{'roommee':'none'}});
+
+        //check if the updte has been conducted successfully or not
+        const confirmRemove = await users.findOne({'accountId':req.account._id});
+        if(confirmRemove.roommee==='none'){
+            res.send('Roommee has been removed, please find a new one');
+        }else{
+            res.send('failed to remove roommee, please try again');
+        }
     }else{
-        console.log(confirm);
-        res.send('failed to remove roommee, please try again');
+        res.send('Please wait for the other roommee confirmation');
     }
+}
+
+// get confirmation for roommee removal
+const removeConfirmation = async (req, res, user) => {
+    
+    await usersMatch.updateOne({'accountId':req.account._id}, {$set:{'changeRoommee':true}});
+
+    // ntar harus ganti se ini jadi list, soale bisa match lebih dari 2
+    const matchId = user.roommee;
+    const matchStats = await usersMatch.findOne({'accountId':mongoose.Types.ObjectId(matchId)});
+    if(matchStats.changeRoommee===true){
+        return 'remove'
+    }else{
+        return 'no'
+    }
+
+}
+
+// get the current user roommee
+const getMyRoommee = async (req, res) => {
+
+    const user = await users.findOne({"accountId":req.account._id});
+    if(user.roommee!=='none'){
+        const roommeeProf = await users.findOne({"accountId":mongoose.Types.ObjectId(user.roommee)});
+        res.send(roommeeProf);
+    }else{
+        res.send('please find a roommee first');
+    }
+
 }
 // -------------------------------Helper Function-------------------------------- 
 
@@ -312,7 +361,7 @@ module.exports={
     clickMatch,
     getUserMatch,
     matchedClick,
-    matchConfirmation,
     removeRoommee,
-    removeMatchClicked
+    removeMatchClicked,
+    getMyRoommee
 };

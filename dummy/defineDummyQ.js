@@ -1,4 +1,4 @@
-var userQDummy = require('../model/userQDB.js');
+var userQDummy = require('../models/userQDB.js');
 var dummy = require('faker');
 
 // sort the result from big to small
