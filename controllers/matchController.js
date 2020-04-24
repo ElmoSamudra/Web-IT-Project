@@ -133,12 +133,11 @@ const matchedClick = async function(req, res){
     // a match, just update in each account.
 
     const userOne = req.account._id;
-
     // this one is in string
     const userTwo = req.body.accountId;
 
     const checkMatchClicked = await usersMatch.findOne({"accountId":userOne, "clickedMatch":"none", 'chat':{$in:[userTwo]}});
-    
+    console.log(checkMatchClicked);
     if(checkMatchClicked){
         await usersMatch.updateOne({accountId:userOne}, {'clickedMatch':userTwo});
         const confirm = await matchConfirmation(req.account._id);
