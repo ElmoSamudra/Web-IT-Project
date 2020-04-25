@@ -15,6 +15,7 @@ const verificationRouter = require('./routes/verificationRouter');
 const profileRouter = require("./routes/profileRouter");
 const questionaireRouter = require("./routes/questionaireRouter");
 const matchRouter = require("./routes/matchRouter");
+const propertyRouter = require("./routes/propertyRouter");
 
 //Home page
 app.get('/', (req, res) => {
@@ -28,6 +29,7 @@ app.use('/verification-management', verificationRouter)
 app.use('/user-profile', profileRouter);
 app.use('/user-questionaire', questionaireRouter);
 app.use('/user-match', matchRouter);
+app.use('/user-property', propertyRouter);
 
 //Launch server
 app.listen(process.env.PORT || 3000, () => {

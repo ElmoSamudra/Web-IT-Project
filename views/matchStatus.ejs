@@ -14,6 +14,10 @@
             <li>Hobby: <%=pendingYes.hobby%></li>
             <li>Language: <%=pendingYes.language%></li>
             <li>Find a place to stay in: <%=pendingYes.preferStay%></li>
+        <% if(pendingYes.listProperty===true){%>
+            <label>This roommee already have a property</label>
+            <button formaction='/user-property/match-property/<%pendingYes.accountId%>' formmethod='GET'>See Property Profile</button>
+        <% } %>
         </ul>
         <label>Ring Roommee?</label>
         <input type="text" name = "<%=pendingYes.accountId%>" value ="yes" required>
@@ -34,6 +38,10 @@
             <li>Hobby: <%=rejectNo.hobby%></li>
             <li>Language: <%=rejectNo.language%></li>
             <li>Find a place to stay in: <%=rejectNo.preferStay%></li>
+        <% if(rejectNo.listProperty===true){%>
+            <label>This roommee already have a property</label>
+            <button formaction='/user-property/match-property/<%rejectNo.accountId%>' formmethod='GET'>See Property Profile</button>
+        <% } %>        
         </ul>
         <label>Ring Roommee?</label>
         <input type="text" name = "<%=rejectNo.id%>" value ="no" required>

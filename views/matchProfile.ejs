@@ -14,6 +14,10 @@
             <li>Hobby: <%=matchUser.hobby%></li>
             <li>Language: <%=matchUser.language%></li>
             <li>Find a place to stay in: <%=matchUser.preferStay%></li>
+        <% if(matchUser.listProperty===true){%>
+                <label>This roommee already have a property</label>
+                <button formaction='/user-property/match-property/<%matchUser.accountId%>' formmethod='GET'>See Property Profile</button>
+        <% } %>
         </ul>
         <label>Ring Roommee?</label>
         <input type="text" name = "<%=matchUser.accountId%>" placeholder = "yes or no" required>
