@@ -25,12 +25,9 @@ app.get('/createroom/:room', (req, res) => { createRoom(req, res); })
 // redirect to new room after creating new room
 app.get('/chatrooms/:room', (req, res) => { getRoom(req, res); })
 
+// delete room
+app.get('/delete/:room', (req, res) =>{ deleteRoom(req, res); })
 
-
-
-// app.get('/delete/:room', (req, res) =>{
-
-// })
 
 server.listen(3000)
 
@@ -133,4 +130,19 @@ async function createRoom(req, res) {
   });
 
   res.redirect(`/chatrooms/${req.params.room}`)
+}
+
+async function deleteRoom(req, res){
+
+  await Chatroom.deleteOne({ name: req.params.room }, function (err) {
+    if(err){
+      res.send("Room not found")
+      console.log("Room not found")
+    }
+    else{
+      delete rooms[req.params.room]
+      console.log("SUCCES IN DELETING " + req.params.room)
+    }
+  });
+  return res.redirect('/chatrooms')
 }
