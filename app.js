@@ -16,6 +16,7 @@ const profileRouter = require("./routes/profileRouter");
 const questionaireRouter = require("./routes/questionaireRouter");
 const matchRouter = require("./routes/matchRouter");
 const leaseRouter = require("./routes/leaseRouter");
+const propertyRouter = require("./routes/propertyRouter");
 
 //Home page
 app.get('/', (req, res) => {
@@ -30,8 +31,10 @@ app.use('/user-profile', profileRouter);
 app.use('/user-questionaire', questionaireRouter);
 app.use('/user-match', matchRouter);
 app.use('/user-lease', leaseRouter);
+app.use('/user-property', propertyRouter);
+
 
 //Launch server
 app.listen(process.env.PORT || 3000, () => {
-    console.log("The flatmate app is running!");
+    console.log("The Roommee app is running!");
 })
