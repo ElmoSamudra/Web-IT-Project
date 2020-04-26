@@ -102,7 +102,7 @@ const getAllUserWithProperty = (req, res) => {
     })
 }
 
-const propertyPref = (req, res) => {
+const propertyPref = async (req, res) => {
     
     let queryObj = {};
     const keysObj = Object.keys(req.body);
@@ -116,10 +116,12 @@ const propertyPref = (req, res) => {
             queryObj.key = req.body.key;
         }
     })
-    // blm selesai
-
-
-
+    const propertyFind = await property.find(queryObj);
+    if(propertyFind){
+        res.send(propertyFind);
+    }else{
+        res.send('No result found, please try other preference');
+    }
 }
 
 
@@ -129,6 +131,6 @@ module.exports = {
     seeOtherProperty,
     updateProperty,
     deleteProperty,
-    getAllUserWithProperty
-
+    getAllUserWithProperty,
+    propertyPref
 }
