@@ -20,7 +20,8 @@ var userSchema = new mongoose.Schema({
     language: [String],
     preferStay: [String],
     roommee: String,
-    listProperty: Boolean
+    listProperty: Boolean,
+    matchBuffer : [String]
 });
 
 // compile the model into variable User (User takes the Schema pattern)

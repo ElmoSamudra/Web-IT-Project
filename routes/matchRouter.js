@@ -23,5 +23,7 @@ matchRouter.post("/remove-roommee", auth, (req, res) => {matchController.removeR
 matchRouter.post("/remove-match", auth, (req,res) => {matchController.removeMatchClicked(req, res)});
 // get the user roommee profile
 matchRouter.get("/roommee", auth, (req, res) => {matchController.getMyRoommee(req, res)});
+// pref to sort the match result
+matchRouter.get("/sort-match", auth, (req, res) => {matchController.sortOption(req, res)});
 
 module.exports = matchRouter;
