@@ -12,34 +12,63 @@ const runMatchAlgo = async (req, res) => {
 
     // filter 1
     const idUser = req.account._id
-    const firstFilter = await filterOne(idUser);
+    const prefChange = await customisePref(req, res); 
+    //console.log(prefChange);  
+    const firstFilter = await filterOne(idUser, prefChange);
+    let sortedMatchUser = [];
     
     // if found no matching in first filter, just get all user with same gender and nationality for now
     if(firstFilter.length===0){
         const userProf = await users.findOne({'accountId':idUser});
         const getAll = await users.find({'accountId':{$ne:idUser}, 'gender':userProf.gender, 'nationality':userProf.nationality});
         const firstFilter = getAll.map(value => value.accountId);
+        await users.updateOne({'accountId':isUser}, {$set:{'matchBuffer':firstFilter}});
 
         // sort the filter
-        const secondFilter = await filterTwo(idUser, firstFilter);
+        const secondFilter = await filterTwo(idUser, firstFilter, {});
         const finResult = secondFilter.map(value => value.id);
-        const sortedMatchUser = await users.find({'accountId':{$in:finResult}});
+        const sortResult = await users.find({'accountId':{$in:finResult}});
+        
+        // show the result in sorted order
+        finResult.forEach(sortOrder =>{
+            sortedMatchUser.push(sortResult[sortResult.findIndex(x => x.accountId.toString() === sortOrder.toString())]);
+        })
+
         res.render('matchProfile', {sortedMatchUser:sortedMatchUser, idUser:idUser});
     }
 
+    // filter match found
+    await users.updateOne({'accountId':idUser}, {$set:{'matchBuffer':firstFilter}});
     // sort the filter
-    const secondFilter = await filterTwo(idUser, firstFilter);
+    const secondFilter = await filterTwo(idUser, firstFilter, {});
     const finResult = secondFilter.map(value => mongoose.Types.ObjectId(value.id));
-    const sortedMatchUser = await users.find({'accountId':{$in:finResult}});
+    const sortResult = await users.find({'accountId':{$in:finResult}});
+
+    // show the result in sorted order
+    finResult.forEach(sortOrder =>{
+        sortedMatchUser.push(sortResult[sortResult.findIndex(x => x.accountId.toString() === sortOrder.toString())]);
+    })
+
     res.render('matchProfile', {sortedMatchUser:sortedMatchUser, idUser:idUser});
 };
+
+// for customizing the preference (optional, both first and second filter)
+const customisePref = async (req, res) => {
+
+    let prefObj = {};
+    const prefKeys = Object.keys(req.body);
+    prefKeys.forEach(key => {
+        prefObj[key] = req.body[key];
+    })
+    return prefObj;
+
+}
 
 // -------------------------------Match Status-------------------------------- 
 
 // check for the match status here
 const clickMatch = async function(req, res){
     
-    console.log('masuk controller');
     const userID = req.account._id;
     const matchIDs = Object.keys(req.body);
     const userMatch = await usersMatch.findOne({'accountId':userID});
@@ -72,7 +101,6 @@ const clickMatch = async function(req, res){
             if(err){
                 console.error('err');
             }else{
-                console.log(userMatch);
                 console.log("New user saved to Match collection.");
                 res.redirect("/user-match/status");
             }
@@ -133,11 +161,12 @@ const matchedClick = async function(req, res){
     // a match, just update in each account.
 
     const userOne = req.account._id;
+
     // this one is in string
     const userTwo = req.body.accountId;
 
     const checkMatchClicked = await usersMatch.findOne({"accountId":userOne, "clickedMatch":"none", 'chat':{$in:[userTwo]}});
-    console.log(checkMatchClicked);
+
     if(checkMatchClicked){
         await usersMatch.updateOne({accountId:userOne}, {'clickedMatch':userTwo});
         const confirm = await matchConfirmation(req.account._id);
@@ -150,6 +179,7 @@ const matchedClick = async function(req, res){
         }
 
     }else{
+        // This should happen in the chat
         res.send("You already have a roommee, please remove them first");
     }
     
@@ -158,6 +188,7 @@ const matchedClick = async function(req, res){
 // remove the match clikced
 const removeMatchClicked = async function(req, res){
 
+    // use this when the invitation for roommee is still pending
     await usersMatch.updateOne({'accountId':req.account._id}, {$set:{'clickedMatch':"none"}});
     res.send('You have undo your clicked match');
     //const currentUser = await userMatch.function({'accountId':req.account._id});
@@ -241,7 +272,6 @@ const getMyRoommee = async (req, res) => {
 // check if there is a chat match
 const checkMatch = async function(userID, matchID, ans){
     
-    console.log('enter');
     const matchRes = await usersMatch.findOne({'accountId':mongoose.Types.ObjectId(matchID), 'yes':{$in:userID.toString()}});
     // Enable chat 
     if(matchRes){
@@ -260,7 +290,7 @@ const checkMatch = async function(userID, matchID, ans){
 };
 
 // filter one
-const filterOne = async function(userID){
+const filterOne = async function(userID, pref){
     
     // query the user profile and questionaire
     const user = await users.findOne({accountId:userID});
@@ -274,36 +304,40 @@ const filterOne = async function(userID){
     userQueryObject.accountId = {$ne:userID};
     userQueryObject.roommee = 'none';
 
+    // for preference
+    let prefFilter = pref;
+
     // essential data needed for other user questionaire answer
     questionQueryObject.accountId = {$ne:userID};
     questionQueryObject['filter1.numRoommeePref'] = userQ.filter1.numRoommeePref;
     questionQueryObject['filter1.ageDiffRange'] = user.age;
     
+    // by default
+    if(Object.keys(pref).length===0){
+        prefFilter = userQ.filter1
+    }
     // single value filter
-    if(userQ.filter1.sameNationalityPref==='yes'){
+    if(prefFilter.sameNationalityPref==='yes'){
         userQueryObject.nationality = user.nationality;
     }
-    if(userQ.filter1.sameGenderPref==='yes'){
+    if(prefFilter.sameGenderPref==='yes'){
         userQueryObject.gender = user.gender;
     }
-    if(userQ.filter1.petsPref==='yes'){
+    if(prefFilter.petsPref==='yes'){
         questionQueryObject['filter1.petsPref']='yes';
     }
 
     // multiple value filter
-    if(userQ.filter1.sameLocationPref==='yes'){
+    if(prefFilter.sameLocationPref==='yes'){
         userQueryObject.preferStay = {$in:user.preferStay};
     }
-    if(userQ.filter1.sameLangPref==='yes'){
+    if(prefFilter.sameLangPref==='yes'){
         userQueryObject.language = {$in:user.language};
     }
-    
+  
     // query the other user data
     const userMatches = await users.find(userQueryObject);
     const userQMatches = await usersAns.find(questionQueryObject);
-
-    //console.log(userMatches);
-    //console.log(userQMatches);
 
     const idOne = userMatches.map(value => value.accountId.toString());
     const idTwo = userQMatches.map(value => value.accountId.toString());
@@ -313,7 +347,7 @@ const filterOne = async function(userID){
 }
 
 // sorting the filter one
-const filterTwo = async function(userID, matchID){
+const filterTwo = async function(userID, matchID, sortOption){
 
     const queryID = {accountId: {$in: matchID}};
     let result = [];
@@ -326,13 +360,35 @@ const filterTwo = async function(userID, matchID){
     filterOneMatches.forEach(match => {
         comparison = {};
         comparison.id = match.accountId;
-        comparison.distance = euclidean(user.filter2, match.filter2);
+        comparison.distance = euclidean(user.filter2, match.filter2, sortOption);
         result.push(comparison);
     })
     //sort filter_2
     const sortResult = await sortMatch(result);
 
     return sortResult;
+}
+
+// used after user have done a match algo
+const sortOption = async function(req, res){
+    
+    let sortedMatchUser = []
+
+    const idUser = req.account._id;
+    const pref = await customisePref(req, res);
+    const user = await users.findOne({'accountId':idUser});
+    const matchID = user.matchBuffer;
+
+    const secondFilter = await filterTwo(idUser, matchID, pref);
+    const finResult = secondFilter.map(value => mongoose.Types.ObjectId(value.id));
+    const sortResult = await users.find({'accountId':{$in:finResult}});
+    
+    // show the result in sorted order
+    finResult.forEach(sortOrder =>{
+        sortedMatchUser.push(sortResult[sortResult.findIndex(x => x.accountId.toString() === sortOrder.toString())]);
+    })
+
+    res.render('matchProfile', {sortedMatchUser:sortedMatchUser, idUser: idUser});
 }
 
 const sortMatch = async function(result){
@@ -344,15 +400,23 @@ const sortMatch = async function(result){
 }
 
 // euclidean distance function 
-function euclidean(user1, user2){
+function euclidean(user1, user2, sortOption){
 
     var distance = 0;
-    // iterate each keys in filter 2 
-    for(var key of Object.keys(user1)){
-        distance += Math.pow((user1[key]-user2[key]),2);
+    if(Object.keys(sortOption).length===0){
+        // iterate each keys in filter 2 
+        for(var key of Object.keys(user1)){
+            distance += Math.pow((user1[key]-user2[key]),2);
+        }
+        return Math.sqrt(distance)
+    }else{
+        for(var key of Object.keys(sortOption)){
+            distance += Math.pow((user1[key]-user2[key]),2);
+        }
+        return Math.sqrt(distance)
     }
-    return Math.sqrt(distance)
 }
+
 
 
 module.exports={
@@ -362,5 +426,6 @@ module.exports={
     matchedClick,
     removeRoommee,
     removeMatchClicked,
-    getMyRoommee
+    getMyRoommee,
+    sortOption
 };
