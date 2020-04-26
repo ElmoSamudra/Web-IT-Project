@@ -8,6 +8,10 @@ const app = express();
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: true}));
 app.set("view engine", "ejs");
+app.set('views', './views')
+app.use(express.static('controllers'))
+app.use(express.urlencoded({ extended: true }))
+
 
 //Set up routes
 const accountRouter = require('./routes/accountRouter');
@@ -17,6 +21,7 @@ const questionaireRouter = require("./routes/questionaireRouter");
 const matchRouter = require("./routes/matchRouter");
 const leaseRouter = require("./routes/leaseRouter");
 const propertyRouter = require("./routes/propertyRouter");
+const chatRouter = require("./routes/chatRouter")
 
 //Home page
 app.get('/', (req, res) => {
@@ -32,9 +37,9 @@ app.use('/user-questionaire', questionaireRouter);
 app.use('/user-match', matchRouter);
 app.use('/user-lease', leaseRouter);
 app.use('/user-property', propertyRouter);
-
+app.use('/chats', chatRouter);
 
 //Launch server
 app.listen(process.env.PORT || 3000, () => {
-    console.log("The Roommee app is running!");
+    console.log("The flatmate app is running!");
 })
