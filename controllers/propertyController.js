@@ -102,6 +102,26 @@ const getAllUserWithProperty = (req, res) => {
     })
 }
 
+const propertyPref = (req, res) => {
+    
+    let queryObj = {};
+    const keysObj = Object.keys(req.body);
+    keysObj.forEach(key => {
+        if(key==='suburb'){
+            queryObj.key = {$in:req.body.key.split(",")};
+        }else if(key==='weeklyRent'){
+            queryObj.key = {$gte:req.body.key[0],
+                            $lt:req.body.key[-1]}
+        }else{
+            queryObj.key = req.body.key;
+        }
+    })
+    // blm selesai
+
+
+
+}
+
 
 module.exports = {
     userListingProperty,
