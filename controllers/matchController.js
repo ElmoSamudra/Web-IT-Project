@@ -177,9 +177,12 @@ const matchedClick = async function(req, res){
         // the other user has pressed the match click, got a roommee here
         if(confirm==='confirmed'){
             // start creating the lease here 
-            let newLease = usersLease({});
-            newLease.accountId = req.account._id;
-            await newLease.save();
+            let newLeaseOne = usersLease({});
+            let newLeaseTwo = usersLease({});
+            newLeaseOne.accountId = req.account._id;
+            newLeaseTwo.accountId = userTwo;
+            await newLeaseOne.save();
+            await newLeaseTwo.save();
             res.send(userTwo + " is you roommate now, time to meet an agent");
         }else{
             res.send('Please wait for your roommee confirmation');
