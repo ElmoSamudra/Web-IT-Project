@@ -16,6 +16,7 @@ const profileRouter = require("./routes/profileRouter");
 const questionaireRouter = require("./routes/questionaireRouter");
 const matchRouter = require("./routes/matchRouter");
 const propertyRouter = require("./routes/propertyRouter");
+const leaseRouter = require("./routes/leaseRouter");
 
 //Home page
 app.get('/', (req, res) => {
@@ -30,6 +31,7 @@ app.use('/user-profile', profileRouter);
 app.use('/user-questionaire', questionaireRouter);
 app.use('/user-match', matchRouter);
 app.use('/user-property', propertyRouter);
+app.use('/user-lease', leaseRouter);
 
 //Launch server
 app.listen(process.env.PORT || 3000, () => {

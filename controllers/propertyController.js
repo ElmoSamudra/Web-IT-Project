@@ -102,6 +102,7 @@ const getAllUserWithProperty = (req, res) => {
     })
 }
 
+// set the search property preference
 const propertyPref = async (req, res) => {
     
     let queryObj = {};

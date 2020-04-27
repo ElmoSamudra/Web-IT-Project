@@ -4,6 +4,7 @@ var mongoose = require("mongoose");
 var users = require('../models/userDB.js');
 var usersAns = require('../models/userQDB.js');
 var usersMatch = require('../models/matchDB.js');
+var usersLease = require('../models/leaseDB.js');
 
 // -------------------------------Match Algorithm--------------------------------
 
@@ -166,17 +167,19 @@ const matchedClick = async function(req, res){
 
     // this one is in string
     const userTwo = req.body.accountId;
-    console.log(userTwo);
 
     const checkMatchClicked = await usersMatch.findOne({"accountId":userOne, "clickedMatch":"none", 'chat':{$in:[userTwo]}});
-    console.log(checkMatchClicked);
 
     if(checkMatchClicked){
         await usersMatch.updateOne({accountId:userOne}, {'clickedMatch':userTwo});
         const confirm = await matchConfirmation(req.account._id);
 
-        // check one more time if it still work or not
+        // the other user has pressed the match click, got a roommee here
         if(confirm==='confirmed'){
+            // start creating the lease here 
+            let newLease = usersLease({});
+            newLease.accountId = req.account._id;
+            await newLease.save();
             res.send(userTwo + " is you roommate now, time to meet an agent");
         }else{
             res.send('Please wait for your roommee confirmation');
@@ -233,7 +236,10 @@ const removeRoommee = async function (req, res){
 
         //check if the updte has been conducted successfully or not
         const confirmRemove = await users.findOne({'accountId':req.account._id});
+        
         if(confirmRemove.roommee==='none'){
+            // delete the lease as well
+            await usersLease.deleteOne({'accountId':req.account._id});
             res.send('Roommee has been removed, please find a new one');
         }else{
             res.send('failed to remove roommee, please try again');
