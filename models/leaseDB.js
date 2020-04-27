@@ -5,7 +5,6 @@ var leaseSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectID,
         ref: "Account"
     },
-    roommeeId: String, 
     propertyId:String,
     // list of company ids
     utils:[String],
