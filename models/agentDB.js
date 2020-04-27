@@ -8,9 +8,11 @@ const agentSchema = new mongoose.Schema({
   first_name: String,
   last_name: String,
   locationAdress: String,
+  Suburb: String,
   noBedrooms: String,
   noBaths: String,
   furnished: Boolean,
+  weeklyRent: Number,
   pets: Boolean,
   desc: String,
 

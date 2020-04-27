@@ -25,6 +25,7 @@ const profileRouter = require("./routes/profileRouter");
 const questionaireRouter = require("./routes/questionaireRouter");
 const matchRouter = require("./routes/matchRouter");
 const leaseRouter = require("./routes/leaseRouter");
+const propertyRouter = require("./routes/propertyRouter");
 const chatRouter = require("./routes/chatRouter")
 
 //Home page
@@ -40,6 +41,7 @@ app.use('/user-profile', profileRouter);
 app.use('/user-questionaire', questionaireRouter);
 app.use('/user-match', matchRouter);
 app.use('/user-lease', leaseRouter);
+app.use('/user-property', propertyRouter);
 app.use('/chats', chatRouter);
 
 //Launch server

@@ -102,6 +102,28 @@ const getAllUserWithProperty = (req, res) => {
     })
 }
 
+const propertyPref = async (req, res) => {
+    
+    let queryObj = {};
+    const keysObj = Object.keys(req.body);
+    keysObj.forEach(key => {
+        if(key==='suburb'){
+            queryObj.key = {$in:req.body.key.split(",")};
+        }else if(key==='weeklyRent'){
+            queryObj.key = {$gte:req.body.key[0],
+                            $lt:req.body.key[-1]}
+        }else{
+            queryObj.key = req.body.key;
+        }
+    })
+    const propertyFind = await property.find(queryObj);
+    if(propertyFind){
+        res.send(propertyFind);
+    }else{
+        res.send('No result found, please try other preference');
+    }
+}
+
 
 module.exports = {
     userListingProperty,
@@ -109,6 +131,6 @@ module.exports = {
     seeOtherProperty,
     updateProperty,
     deleteProperty,
-    getAllUserWithProperty
-
+    getAllUserWithProperty,
+    propertyPref
 }

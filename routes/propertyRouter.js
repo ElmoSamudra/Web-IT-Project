@@ -14,5 +14,6 @@ propertyRouter.get("/match-property/:propertyId", auth, (req, res) => {propertyC
 propertyRouter.post("/update", auth, (req, res) => {propertyController.updateProperty(req, res)});
 propertyRouter.delete("/remove", auth, (req, res) => {propertyController.deleteProperty(req, res)});
 propertyRouter.get("/list-properties", auth, (req, res) => {propertyController.getAllUserWithProperty(req, res)});
+propertyRouter.get("/search", auth, (req, res) => {propertyController.propertyPref(req, res)});
 
 module.exports = propertyRouter;
