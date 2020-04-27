@@ -1,8 +1,7 @@
 const express = require('express')
-const chat = express()
+// const chat = express()
 const chatRouter = express.Router();
-const server = require('http').Server(chat)
-const io = require('socket.io')(server)
+
 const auth = require("../middleware/authentication");
 
 
@@ -29,47 +28,49 @@ chatRouter.get('/delete/:room', auth, (req, res) =>{ deleteRoom(req, res); })
 
 
 // connecting to room(changing ejs)
-io.on('connection', socket => {
-  console.log('connected');
-  socket.on('room-created', room => {
-    console.log('room created ' + room)
-  });
-  socket.on('new-user', async (room, name, userId) => {
-    console.log(`new-user ${room} ${name}`);
-    socket.join(room)
-    rooms[room].users[socket.id] = name
-    socket.to(room).broadcast.emit('user-connected', name)
-
-    //add user to chatroom database
-    let chatroomDB = await Chatroom.findOne({ name: room })
-
-    if (chatroomDB.users.indexOf(userId) === -1){
-      console.log("user joined" + room)
-      await Chatroom.updateOne({ name:room }, {$push:{users: userId}})
-    }
-  })
-
-  socket.on('send-chat-message', async (room, message) => {
-    console.log(`chat-message ${room} ${message}`);
-    socket.to(room).broadcast.emit('chat-message', { message: message, name: rooms[room].users[socket.id] })
-
-    //add message to database
-    let chatroomDB = await Chatroom.findOne({ name: room })
-
-    await Chatroom.updateOne(
-      { name:room }, 
-      {$push:{ messages:{ from: rooms[room].users[socket.id], body: message}
-      }}
-    )       
-  })
-
-  socket.on('disconnect', () => {
-    getUserRooms(socket).forEach(room => {
-      socket.to(room).broadcast.emit('user-disconnected', rooms[room].users[socket.id])
-      delete rooms[room].users[socket.id]
+function ioInitialise(io){
+  io.on('connection', socket => {
+    console.log('connected');
+    socket.on('room-created', room => {
+      console.log('room created ' + room)
+    });
+    socket.on('new-user', async (room, name, userId) => {
+      console.log(`new-user ${room} ${name}`);
+      socket.join(room)
+      rooms[room].users[socket.id] = name
+      socket.to(room).broadcast.emit('user-connected', name)
+  
+      //add user to chatroom database
+      let chatroomDB = await Chatroom.findOne({ name: room })
+  
+      if (chatroomDB.users.indexOf(userId) === -1){
+        console.log("user joined" + room)
+        await Chatroom.updateOne({ name:room }, {$push:{users: userId}})
+      }
+    })
+  
+    socket.on('send-chat-message', async (room, message) => {
+      console.log(`chat-message ${room} ${message}`);
+      socket.to(room).broadcast.emit('chat-message', { message: message, name: rooms[room].users[socket.id] })
+  
+      //add message to database
+      let chatroomDB = await Chatroom.findOne({ name: room })
+  
+      await Chatroom.updateOne(
+        { name:room }, 
+        {$push:{ messages:{ from: rooms[room].users[socket.id], body: message}
+        }}
+      )       
+    })
+  
+    socket.on('disconnect', () => {
+      getUserRooms(socket).forEach(room => {
+        socket.to(room).broadcast.emit('user-disconnected', rooms[room].users[socket.id])
+        delete rooms[room].users[socket.id]
+      })
     })
   })
-})
+}
 
 
 
@@ -99,6 +100,7 @@ async function getRoom(req, res) {
     userId: req.account._id,
     chatHistory: chatroomDB.messages
   })
+  console.log("in chat: ", req.params.room, req.account.name, req.account._id)
 }
 
 async function createRoom(req, res) {
@@ -145,3 +147,4 @@ async function deleteRoom(req, res){
 
 //export
 module.exports = chatRouter;
+module.exports.sockets = ioInitialise;
