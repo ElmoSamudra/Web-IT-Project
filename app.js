@@ -1,7 +1,6 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 
-
 //Connect to database in MongoDB Atlas upon start of application
 require('./db/mongoose');
 const app = express();
@@ -11,6 +10,12 @@ app.set("view engine", "ejs");
 app.set('views', './views')
 app.use(express.static('controllers'))
 app.use(express.urlencoded({ extended: true }))
+
+//chats
+const server = require('http').Server(app)
+const io = require('socket.io')(server)
+require('./routes/chatRouter').sockets(io)
+
 
 
 //Set up routes
@@ -38,6 +43,6 @@ app.use('/user-lease', leaseRouter);
 app.use('/chats', chatRouter);
 
 //Launch server
-app.listen(process.env.PORT || 3000, () => {
+server.listen(process.env.PORT || 3000, () => {
     console.log("The flatmate app is running!");
 })
