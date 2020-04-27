@@ -29,22 +29,24 @@ const getLease = async (req, res) => {
     const location = propertyData.locationAdress;
     const rent = propertyData.weeklyRent;
 
-    const utilsUsed;
-    const leaseStart;
-    const leaseEnd;
+    // this result in errors, that is why i commented it -nathan
+    
+    // const utilsUsed;
+    // const leaseStart;
+    // const leaseEnd;
 
 
-    res.send(<H1>Lease</H1> + 
-        "\n\nResident 1: " + resident1 +
-        "\nResident 2: " + resident2 + 
-        "\nProperty: " + propertyUsed +
-        "\nAddress: " + location +
-        "\nWeekly Rent: " + rent +
-        "\nAgency: " + agentUsed +
-        "\nUtilisations: " + utilsUsed +
-        "\nLease Start Date: " + leaseStart +
-        "\nLease End Date: " + leaseEnd
-    )
+    // res.send(<H1>Lease</H1> + 
+    //     "\n\nResident 1: " + resident1 +
+    //     "\nResident 2: " + resident2 + 
+    //     "\nProperty: " + propertyUsed +
+    //     "\nAddress: " + location +
+    //     "\nWeekly Rent: " + rent +
+    //     "\nAgency: " + agentUsed +
+    //     "\nUtilisations: " + utilsUsed +
+    //     "\nLease Start Date: " + leaseStart +
+    //     "\nLease End Date: " + leaseEnd
+    // )
 }
 
 // user request to change the lease
