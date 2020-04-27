@@ -6,9 +6,9 @@ const leaseController = require("../controllers/leaseController");
 const leaseRouter = express.Router();
 
 // fill the lease after everything is settled
-leaseRouter.post("/lease", auth, (req, res) => {leaseController.fillLease(req, res)});
+leaseRouter.post("/lease", auth, (req, res) => {leaseController.getLease(req, res)});
 // get the lease
-leaseRouter.get("/lease", auth, (req, res) => {leaseController.fillLease(req, res)});
+leaseRouter.get("/lease", auth, (req, res) => {leaseController.getLease(req, res)});
 
 module.exports = leaseRouter;
 
