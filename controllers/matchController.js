@@ -4,6 +4,7 @@ var mongoose = require("mongoose");
 var users = require('../models/userDB.js');
 var usersAns = require('../models/userQDB.js');
 var usersMatch = require('../models/matchDB.js');
+var usersLease = require('../models/leaseDB.js');
 
 // -------------------------------Match Algorithm--------------------------------
 
@@ -69,6 +70,7 @@ const customisePref = async (req, res) => {
 // check for the match status here
 const clickMatch = async function(req, res){
     
+    console.log('masuk controller');
     const userID = req.account._id;
     const matchIDs = Object.keys(req.body);
     const userMatch = await usersMatch.findOne({'accountId':userID});
@@ -101,6 +103,7 @@ const clickMatch = async function(req, res){
             if(err){
                 console.error('err');
             }else{
+                console.log(userMatch);
                 console.log("New user saved to Match collection.");
                 res.redirect("/user-match/status");
             }
@@ -171,8 +174,15 @@ const matchedClick = async function(req, res){
         await usersMatch.updateOne({accountId:userOne}, {'clickedMatch':userTwo});
         const confirm = await matchConfirmation(req.account._id);
 
-        // check one more time if it still work or not
+        // the other user has pressed the match click, got a roommee here
         if(confirm==='confirmed'){
+            // start creating the lease here 
+            let newLeaseOne = usersLease({});
+            let newLeaseTwo = usersLease({});
+            newLeaseOne.accountId = req.account._id;
+            newLeaseTwo.accountId = userTwo;
+            await newLeaseOne.save();
+            await newLeaseTwo.save();
             res.send(userTwo + " is you roommate now, time to meet an agent");
         }else{
             res.send('Please wait for your roommee confirmation');
@@ -229,7 +239,10 @@ const removeRoommee = async function (req, res){
 
         //check if the updte has been conducted successfully or not
         const confirmRemove = await users.findOne({'accountId':req.account._id});
+        
         if(confirmRemove.roommee==='none'){
+            // delete the lease as well
+            await usersLease.deleteOne({'accountId':req.account._id});
             res.send('Roommee has been removed, please find a new one');
         }else{
             res.send('failed to remove roommee, please try again');
@@ -272,6 +285,7 @@ const getMyRoommee = async (req, res) => {
 // check if there is a chat match
 const checkMatch = async function(userID, matchID, ans){
     
+    console.log('enter');
     const matchRes = await usersMatch.findOne({'accountId':mongoose.Types.ObjectId(matchID), 'yes':{$in:userID.toString()}});
     // Enable chat 
     if(matchRes){
@@ -334,14 +348,21 @@ const filterOne = async function(userID, pref){
     if(prefFilter.sameLangPref==='yes'){
         userQueryObject.language = {$in:user.language};
     }
-  
+    console.log(userQueryObject);
+    console.log(questionQueryObject);   
     // query the other user data
     const userMatches = await users.find(userQueryObject);
     const userQMatches = await usersAns.find(questionQueryObject);
+    
+
+    console.log(userMatches);
+    console.log(userQMatches);
 
     const idOne = userMatches.map(value => value.accountId.toString());
     const idTwo = userQMatches.map(value => value.accountId.toString());
     const matchID = idOne.filter(value => idTwo.includes(value));
+
+    console.log(matchID);
 
     return matchID;
 }

@@ -1,6 +1,6 @@
 var mongoose = require("mongoose");
 
-var connectSchema = new mongoose.Schema({
+var leaseSchema = new mongoose.Schema({
     accountId: {
         type: mongoose.Schema.Types.ObjectID,
         ref: "Account"
@@ -8,8 +8,8 @@ var connectSchema = new mongoose.Schema({
     propertyId:String,
     // list of company ids
     utils:[String],
-    leaseStart:Date,
-    leaseEnd:Date
+    leastStart:Date,
+    leastEnd:Date
 });
 
-module.exports = mongoose.model("connect", connectSchema);
+module.exports = mongoose.model("lease", leaseSchema);

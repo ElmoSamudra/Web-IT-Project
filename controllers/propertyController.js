@@ -102,26 +102,37 @@ const getAllUserWithProperty = (req, res) => {
     })
 }
 
+// set the search property preference
 const propertyPref = async (req, res) => {
     
     let queryObj = {};
     const keysObj = Object.keys(req.body);
+
+    // iterate for each request
     keysObj.forEach(key => {
         if(key==='suburb'){
-            queryObj.key = {$in:req.body.key.split(",")};
+            queryObj[key] = {$in:req.body[key].split(",")};
         }else if(key==='weeklyRent'){
-            queryObj.key = {$gte:req.body.key[0],
-                            $lt:req.body.key[-1]}
+            queryObj[key] = {$gte:req.body[key][0],
+                            $lt:req.body[key][1]}
         }else{
-            queryObj.key = req.body.key;
+            queryObj[key] = req.body[key];
         }
     })
+    console.log(queryObj);
+    // find the property
     const propertyFind = await property.find(queryObj);
+    
     if(propertyFind){
-        res.send(propertyFind);
+        if(propertyFind.length!==0){
+            res.send(propertyFind);
+        }else{
+            res.send('No result found, please try other preference');
+        }
     }else{
-        res.send('No result found, please try other preference');
+        res.send('query property failed');
     }
+    
 }
 
 
