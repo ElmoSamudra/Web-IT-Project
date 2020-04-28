@@ -176,7 +176,6 @@ const matchedClick = async function(req, res){
 
     // this one is in string
     const userTwo = req.body.accountId;
-
     const checkMatchClicked = await usersMatch.findOne({"accountId":userOne, "clickedMatch":"none", 'chat':{$in:[userTwo]}});
 
     if(checkMatchClicked){
@@ -193,10 +192,11 @@ const matchedClick = async function(req, res){
             await newLeaseOne.save();
             await newLeaseTwo.save();
             res.send(userTwo + " is you roommate now, time to meet an agent");
+        }else if(confirm==='clash-properties'){
+            res.send('Cannot do match, both user have properties listed');
         }else{
             res.send('Please wait for your roommee confirmation');
         }
-
     }else{
         // This should happen in the chat
         res.send("You already have a roommee, please remove them first");
@@ -221,6 +221,14 @@ const matchConfirmation = async function (accountId){
     const matchUser = await usersMatch.findOne({'accountId':mongoose.Types.ObjectId(currentUser.clickedMatch), clickedMatch:{$in:accountId.toString()}});
 
     if(matchUser){
+        
+        const userProf = await users.findOne({'accountId':accountId});
+        const otherUserProf = await users.findOne({'accountId':mongoose.Types.ObjectId(currentUser.clickedMatch)});
+        // just for extra guard, if both roommee have a property listed, than can't have a roommee match
+        if(userProf.listProperty===true && otherUserProf.listProperty===true){
+            return 'clash-properties'
+        }
+        
         await users.updateOne({'accountId':accountId}, {'roommee':matchUser.accountId});
         await users.updateOne({'accountId':mongoose.Types.ObjectId(currentUser.clickedMatch)}, {'roommee':accountId});
         return 'confirmed'

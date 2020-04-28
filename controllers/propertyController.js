@@ -93,6 +93,7 @@ const deleteProperty = (req, res) => {
 
 // another option for user who does not want to look for an agent
 const getAllUserWithProperty = (req, res) => {
+    
     users.find({'listProperty':true}, function(err, found){
         if(err){
             res.send('failed to find all user with properties');
