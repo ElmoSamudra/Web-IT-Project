@@ -11,46 +11,55 @@ var usersLease = require('../models/leaseDB.js');
 // function to return all user that is a match
 const runMatchAlgo = async (req, res) => {
 
-    // filter 1
-    const idUser = req.account._id
-    const prefChange = await customisePref(req, res); 
-    //console.log(prefChange);  
-    const firstFilter = await filterOne(idUser, prefChange);
-    let sortedMatchUser = [];
-    
-    // if found no matching in first filter, just get all user with same gender and nationality for now
-    if(firstFilter.length===0){
-        const userProf = await users.findOne({'accountId':idUser});
-        const getAll = await users.find({'accountId':{$ne:idUser}, 'gender':userProf.gender, 'nationality':userProf.nationality});
-        const firstFilter = getAll.map(value => value.accountId);
-        await users.updateOne({'accountId':isUser}, {$set:{'matchBuffer':firstFilter}});
+    // enter if the user has already filled his/her questionnaire
+    if(await checkQuestionnaire(req, res)){
 
+        // filter 1
+        const idUser = req.account._id
+        const prefChange = await customisePref(req, res); 
+        //console.log(prefChange);  
+        const firstFilter = await filterOne(idUser, prefChange);
+        let sortedMatchUser = [];
+        
+        // if found no matching in first filter, just get all user with same gender and nationality for now
+        if(firstFilter.length===0){
+            const userProf = await users.findOne({'accountId':idUser});
+            const getAll = await users.find({'accountId':{$ne:idUser}, 'gender':userProf.gender, 'nationality':userProf.nationality});
+            const firstFilter = getAll.map(value => value.accountId);
+            await users.updateOne({'accountId':isUser}, {$set:{'matchBuffer':firstFilter}});
+
+            // sort the filter
+            const secondFilter = await filterTwo(idUser, firstFilter, {});
+            const finResult = secondFilter.map(value => value.id);
+            const sortResult = await users.find({'accountId':{$in:finResult}});
+            
+            // show the result in sorted order
+            finResult.forEach(sortOrder =>{
+                sortedMatchUser.push(sortResult[sortResult.findIndex(x => x.accountId.toString() === sortOrder.toString())]);
+            })
+
+            res.render('matchProfile', {sortedMatchUser:sortedMatchUser, idUser:idUser});
+        }
+
+        // filter match found
+        await users.updateOne({'accountId':idUser}, {$set:{'matchBuffer':firstFilter}});
         // sort the filter
         const secondFilter = await filterTwo(idUser, firstFilter, {});
-        const finResult = secondFilter.map(value => value.id);
+        const finResult = secondFilter.map(value => mongoose.Types.ObjectId(value.id));
         const sortResult = await users.find({'accountId':{$in:finResult}});
-        
+
         // show the result in sorted order
         finResult.forEach(sortOrder =>{
             sortedMatchUser.push(sortResult[sortResult.findIndex(x => x.accountId.toString() === sortOrder.toString())]);
         })
 
         res.render('matchProfile', {sortedMatchUser:sortedMatchUser, idUser:idUser});
+    
+    // the user has not created his/her questionnaire
+    }else{
+        // should be redirect later
+        res.send('please fill the questionnaire first');
     }
-
-    // filter match found
-    await users.updateOne({'accountId':idUser}, {$set:{'matchBuffer':firstFilter}});
-    // sort the filter
-    const secondFilter = await filterTwo(idUser, firstFilter, {});
-    const finResult = secondFilter.map(value => mongoose.Types.ObjectId(value.id));
-    const sortResult = await users.find({'accountId':{$in:finResult}});
-
-    // show the result in sorted order
-    finResult.forEach(sortOrder =>{
-        sortedMatchUser.push(sortResult[sortResult.findIndex(x => x.accountId.toString() === sortOrder.toString())]);
-    })
-
-    res.render('matchProfile', {sortedMatchUser:sortedMatchUser, idUser:idUser});
 };
 
 // for customizing the preference (optional, both first and second filter)
@@ -388,6 +397,15 @@ const filterTwo = async function(userID, matchID, sortOption){
     const sortResult = await sortMatch(result);
 
     return sortResult;
+}
+
+// check guard for matching, need user questionaire before do matching
+const checkQuestionnaire = async(req, res) => {
+    const userQ = await usersAns.findOne({'accountId':req.account._id});
+    if(userQ){
+        return true;
+    }
+    return false;
 }
 
 // used after user have done a match algo
