@@ -11,7 +11,6 @@ var usersLease = require('../models/leaseDB.js');
 // function to return all user that is a match
 const runMatchAlgo = async (req, res) => {
 
-    console.log(await checkQuestionnaire(req, res));
     // enter if the user has already filled his/her questionnaire
     if(await checkQuestionnaire(req, res)){
 
