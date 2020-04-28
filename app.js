@@ -27,11 +27,13 @@ const matchRouter = require("./routes/matchRouter");
 const leaseRouter = require("./routes/leaseRouter");
 const propertyRouter = require("./routes/propertyRouter");
 const chatRouter = require("./routes/chatRouter")
+const agentRouter = require("./routes/agentRouter");
+const utilsRouter = require("./routes/utilsRouter")
 
 //Home page
 app.get('/', (req, res) => {
     //var fullUrl = req.protocol + '://' + req.get('host') + req.originalUrl;
-    res.send("<h1>Welcome to Roommee</h1>");
+    res.send("<h1>Welcome to Roommee!</h1>");
 });
 
 //Routers
@@ -43,6 +45,8 @@ app.use('/user-match', matchRouter);
 app.use('/user-lease', leaseRouter);
 app.use('/user-property', propertyRouter);
 app.use('/chats', chatRouter);
+app.use("/agent-management", agentRouter);
+app.use("/utils-management", utilsRouter);
 
 //Launch server
 server.listen(process.env.PORT || 3000, () => {

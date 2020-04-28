@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <h1>List Of Utilities</h1>
+        <% utils.map((utils) => { %>
+            <h4>Company Name: <%= utils.companyName%></h4>
+            <h4>Utility: <%= utils.utility%> </h4>
+            <h4>Company Location: <%= utils.companyLocation%></h4>            
+            <button onclick = "connectUtil()">test</button>
+        <% }) %>
+      
+        <script>
+            function connectUtil(){
+                alert("utility applied for");
+            }
+
+        </script>
+      
+    
+
+    </head>
+</html>
