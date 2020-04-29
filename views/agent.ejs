@@ -1,30 +1,25 @@
-<!DOCTYPE html>
-<html>
-    <head>
-        <h1>List Of Agents</h1>
-        <% agentsTest.map((agent) => { %>
-            <h4>Agent: <%= agent.first_name + ' ' + agent.last_name%></h4>
-            <h4>Agency: <%= agent.agency%> </h4>
-            <h4>Apartment/House Location: <%= agent.locationAdress%></h4>
-            <h4>Number of Bedroom: <%= agent.noBedrooms%></h4>
-            <h4>Number of Bathrooms: <%= agent.noBaths %> </h4>
-            <h4>Furnished: <%= agent.furnished %></h4>
-            <h4>Pets Allowed: <%= agent.pets %></h4>
-            <h4><%= agent.desc %></h4>
-            <h3>Rent per week: <%= agent.rent %></h3>
-            <button onclick = "location.href = '/utils-management'">test</button>
-        <% }) %>
-      
-        <script>
-            function send_to_home_page(){
-                alert("not bad words");
-            };
-            function myfunction(){
-                agents_test.tostring();
-            }
-        </script>
-      
-    
+<% include("partials/header") %>
 
-    </head>
-</html>
+<h1>List Of Agents</h1>
+<% agentsTest.map((agent) => { %>
+    <h4>Agent: <%= agent.first_name + ' ' + agent.last_name%></h4>
+    <h4>Agency: <%= agent.agency%> </h4>
+    <h4>Apartment/House Location: <%= agent.locationAdress%></h4>
+    <h4>Number of Bedroom: <%= agent.noBedrooms%></h4>
+    <h4>Number of Bathrooms: <%= agent.noBaths %> </h4>
+    <h4>Furnished: <%= agent.furnished %></h4>
+    <h4>Pets Allowed: <%= agent.pets %></h4>
+    <h4><%= agent.desc %></h4>
+    <h3>Rent per week: <%= agent.rent %></h3>
+
+    <form action="agent-management/chooseProperty/<%=agent.propertyId%>" method='POST'>
+        <button>Choose</button>
+    </form>
+
+    <button onclick = "location.href = '/utils-management'">Go to Utilisations</button>
+<% }) %>
+  
+
+      
+<% include("partials/footer") %>    
+  

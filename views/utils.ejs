@@ -1,22 +1,16 @@
-<!DOCTYPE html>
-<html>
-    <head>
+<% include("partials/header") %>
+
         <h1>List Of Utilities</h1>
         <% utils.map((utils) => { %>
             <h4>Company Name: <%= utils.companyName%></h4>
             <h4>Utility: <%= utils.utility%> </h4>
-            <h4>Company Location: <%= utils.companyLocation%></h4>            
-            <button onclick = "connectUtil()">test</button>
+            <h4>Company Location: <%= utils.companyLocation%></h4>  
+
+            <form action="utils-management/chooseUtils/<%=utils.companyID%>" method='POST'>
+                <button>Choose</button>
+            </form>
         <% }) %>
       
-        <script>
-            function connectUtil(){
-                alert("utility applied for");
-            }
-
-        </script>
       
+<% include("partials/footer") %>    
     
-
-    </head>
-</html>

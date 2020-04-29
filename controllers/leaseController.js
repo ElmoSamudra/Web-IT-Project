@@ -13,33 +13,38 @@ sgMail.setApiKey(sendgridApiKey);
 const getLease = async (req, res) => {
     try {
         const currentUserId = req.account._id;
-        console.log(currentUserId);
         const currentUserData = await users.findOne({'accountId':currentUserId});
-        console.log(currentUserData);
         const resident1 = currentUserData.firstName + " " + currentUserData.surName;
 
         const matchedRoommee = currentUserData.roommee;
-        console.log(matchedRoommee);
         const roommeeData =  await users.findOne({'accountId':matchedRoommee});
-        console.log(roommeeData);
         const resident2 = roommeeData.firstName + " " + roommeeData.surName;
 
         const leaseData = await leases.findOne({'accountId':currentUserId});
 
         const propertyUsed = leaseData.propertyId;
+        console.log(propertyUsed);
         const propertyData = await agents.findOne({'propertyId':propertyUsed});
-
-        const agentUsed = propertyData.agency;
+        console.log(propertyData);
+        const agencyUsed = propertyData.agency;
+        const agentUsed = propertyData.first_name + " " + propertyData.last_name;
         const location = propertyData.locationAdress;
         const rent = propertyData.weeklyRent;
+        const utilsUsed = leaseData.utils;
+        const leaseStart = leaseData.leaseStart;
+        const leaseEnd = leaseData.leaseEnd;
     
         res.send("<h1>Lease</h1>" + 
-            "\n\nResident 1: " + resident1 +
-            "\nResident 2: " + resident2 + 
-            "\nProperty: " + propertyUsed +
-            "\nAddress: " + location +
-            "\nWeekly Rent: " + rent +
-            "\nAgency: " + agentUsed
+            "<h2>Resident 1: </h2>" + resident1 +
+            "<h2>Resident 2: </h2>" + resident2 +
+            "<h2>Agent: </h2>" + agentUsed +
+            "<h2>Property: </h2>" + propertyUsed +
+            "<h2>Address: </h2>" + location +
+            "<h2>Weekly Rent: </h2>" + "$" + rent +
+            "<h2>Agency: </h2>" + agencyUsed +
+            "<h2>Utilities: </h2>" + utilsUsed +
+            "<h2>Start Date: </h2>" + leaseStart +
+            "<h2>End Date: </h2>" + leaseEnd
         )
     }
 
@@ -49,9 +54,7 @@ const getLease = async (req, res) => {
 
     // this result in errors, that is why i commented it -nathan
     
-    // const utilsUsed;
-    // const leaseStart;
-    // const leaseEnd;
+    
 
 
     

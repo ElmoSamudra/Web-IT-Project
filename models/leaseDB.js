@@ -8,8 +8,8 @@ var leaseSchema = new mongoose.Schema({
     propertyId:String,
     // list of company ids
     utils:[String],
-    leastStart:Date,
-    leastEnd:Date
+    leaseStart:Date,
+    leaseEnd:Date
 });
 
 module.exports = mongoose.model("lease", leaseSchema);

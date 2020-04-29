@@ -1,7 +1,7 @@
 const agentsTest = [
   {
-    propertyId: 001,
-    agentId: 01,
+    propertyId: "001",
+    agentId: "01",
     agency: "Melbourne Agency",
     first_name: "John",
     last_name: "Mathew",
@@ -14,8 +14,8 @@ const agentsTest = [
     desc: '2 Bedroom apartment in the City, fully furnished'
   },
   {
-    propertyId: 002,
-    agentId: 02,
+    propertyId: "002",
+    agentId: "02",
     agency: "Boxhill Agency",
     first_name: "Bill",
     last_name: "Andrew",
