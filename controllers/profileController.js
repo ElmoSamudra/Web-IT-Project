@@ -77,6 +77,7 @@ const newUserProfile = async (req, res) => {
     newUser.accountId = req.account._id
     newUser.firstName = req.account.name;
     newUser.surName = req.account.surname;
+    newUser.roommee = 'none';
     // save the new user
     newUser.save(function (err, userQ){
         if(err){
