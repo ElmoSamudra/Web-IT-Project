@@ -26,7 +26,7 @@ const runMatchAlgo = async (req, res) => {
             const userProf = await users.findOne({'accountId':idUser});
             const getAll = await users.find({'accountId':{$ne:idUser}, 'gender':userProf.gender, 'nationality':userProf.nationality});
             const firstFilter = getAll.map(value => value.accountId);
-            await users.updateOne({'accountId':isUser}, {$set:{'matchBuffer':firstFilter}});
+            await users.updateOne({'accountId':idUser}, {$set:{'matchBuffer':firstFilter}});
 
             // sort the filter
             const secondFilter = await filterTwo(idUser, firstFilter, {});
