@@ -432,6 +432,7 @@ const sortOption = async function(req, res){
     res.render('matchProfile', {sortedMatchUser:sortedMatchUser, idUser: idUser});
 }
 
+// sort match using euclidean distance 
 const sortMatch = async function(result){
     
     result.sort(function(a, b){
