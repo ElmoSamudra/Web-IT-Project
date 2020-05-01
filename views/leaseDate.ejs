@@ -1,27 +1,14 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="X-UA-Compatible" content="ie=edge">
-  <title>Chat App</title>
-  <script>
-      function updateDatabase(){
-          
-      }
+<% include("partials/header") %>
 
-  </script>
-</head>
-<body>
-    <h1>Lease Dates</h1>
+<h1>Lease Dates</h1>
 
-    <form action="/">
-        <label for="startDate">First name:</label><br>
-        <input type="date" id="sDate" name="sDate" value="Start Date"><br>
-        <label for="endDate">Last name:</label><br>
-        <input type="date" id="eDate" name="eDate" value="End Date"><br><br>
-        <input type="button" value="Submit" onclick="updateDatabase()">
-    </form> 
+<form action="/input post route here" method='POST'">
+    <label for="startDate">First name:</label><br>
+    <input type="date" id="sDate" name="sDate" value="Start Date"><br>
+    <label for="endDate">Last name:</label><br>
+    <input type="date" id="eDate" name="eDate" value="End Date"><br><br>
+    <input type="submit" value="Submit">
+</form> 
   
       
 <% include("partials/footer") %>    
