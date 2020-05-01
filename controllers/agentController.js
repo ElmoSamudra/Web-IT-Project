@@ -14,7 +14,7 @@ const chooseProperty = async function(req, res) {
                               {$set:{'propertyId': req.params.propertyId}}
                               );
 
-    res.render("leaseDate.ejs", {agentsTest:agentsTest});
+    res.redirect("/agent-management/setPropertyDate");
    
   }
   catch (e) {
@@ -22,9 +22,15 @@ const chooseProperty = async function(req, res) {
   }
 }
 
+const setDate = function(req, res) {
+  console.log("AAAAAAAAAAAAAAAA")
+  res.redirect("/agent-management")
+}
+
 
 // remember to export the functions
 module.exports = {
   getAllAgents2,
-  chooseProperty
+  chooseProperty,
+  setDate
 };

@@ -2,11 +2,11 @@
 
 <h1>Lease Dates</h1>
 
-<form action="/input post route here" method='POST'">
-    <label for="startDate">First name:</label><br>
-    <input type="date" id="sDate" name="sDate" value="Start Date"><br>
-    <label for="endDate">Last name:</label><br>
-    <input type="date" id="eDate" name="eDate" value="End Date"><br><br>
+<form action="/agent-management/setPropertyDate" method='POST'>
+    <label for="startDate">Start:</label><br>
+    <input type="date" id="startDate" name="startDate" required><br>
+    <label for="endDate">End:</label><br>
+    <input type="date" id="endDate" name="endDate" required><br><br>
     <input type="submit" value="Submit">
 </form> 
   
