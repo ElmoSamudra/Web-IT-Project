@@ -5,6 +5,7 @@ var users = require('../models/userDB.js');
 var usersAns = require('../models/userQDB.js');
 var usersMatch = require('../models/matchDB.js');
 var usersLease = require('../models/leaseDB.js');
+var properties = require('../models/agentDB.js');
 
 // -------------------------------Match Algorithm--------------------------------
 
@@ -189,16 +190,47 @@ const matchedClick = async function(req, res){
             newLease.residentOne = req.account._id.toString();
             newLease.residentTwo = userTwo;
             newLease.status = 'not legal';
-            await newLease.save();
+            //await newLease.save();
+            
+            const roommeeOne = await users.findOne({'accountId':req.account._id});
+            const roommeeTwo = await users.findOne({'accountId':mongoose.Types.ObjectId(userTwo)});
 
-            // update the user to set their leaseID
-            await users.updateOne({'accoundId':req.account._id}, {$set:{'leaseID':newLease._id.toString()}});
-            await users.updateOne({'accoundId':mongoose.Types.ObjectId(residentTwo)}, {$set:{'leaseID':newLease._id.toString()}});
-            res.send(userTwo + " is you roommate now, time to meet an agent");
+            // check if the user has listed a property or not
+            if(roommeeOne.listProperty===true || roommeeTwo.listProperty===true){
+                try{
+                    if(roommeeOne.listProperty){
+                        var propertyId = roommeeOne.accountId.toString();
+                    }else{
+                        var propertyId = roommeeTwo.accountId.toString();
+                    }
+                    const userProperty = await properties.findOne({'propertyId':propertyId});
+
+                    // update lease
+                    newLease.propertyId = propertyId;
+                    newLease.utils = userProperty.utils;
+                    newLease.status = 'legal';
+                    await newLease.save();
+                    
+                    const getLease = await usersLease.findOne({'residentOne':req.account._id.toString()});
+                    
+                    await users.updateOne({'accountId':req.account.id}, {$set:{leaseID:getLease._id.toString()}});
+                    await users.updateOne({'accountId':mongoose.Types.ObjectId(userTwo)}, {$set:{leaseID:getLease._id.toString()}});
+                    
+                    res.send('You got a roommee, the only thing you need to do now is to fill the start and end date');
+                    //return res.redirect('/user-lease/')
+                }catch(err){
+                    console.log(err);
+                    return res.send('This functionality is not ready, but this is not our main functionality :)');
+                }
+            }else{
+                await newLease.save();
+                return res.send(userTwo + " is you roommate now, time to meet an agent");
+            }
+
         }else if(confirm==='clash-properties'){
-            res.send('Cannot do match, both user have properties listed');
+            return res.send('Cannot do match, both user have properties listed');
         }else{
-            res.send('Please wait for your roommee confirmation');
+            return res.send('Please wait for your roommee confirmation');
         }
     }else{
         // This should happen in the chat
