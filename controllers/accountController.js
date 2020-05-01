@@ -18,7 +18,7 @@ const register = async (req, res) => {
         const token = await newAccount.generateAuthToken()
         await newAccount.generateEmailToken()
         console.log(req.get("host"))
-        await emailController.sendVerificationEmail(req.serverUrl)
+        await emailController.sendVerificationEmail(req.serverUrl, req.account)
         res.status(201).send({token})
     }catch (e) {
         res.status(400).send("Error")
