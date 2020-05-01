@@ -224,6 +224,10 @@ const matchedClick = async function(req, res){
                 }
             }else{
                 await newLease.save();
+                const getLease = await usersLease.findOne({'residentOne':req.account._id.toString()});
+                    
+                await users.updateOne({'accountId':req.account.id}, {$set:{leaseID:getLease._id.toString()}});
+                await users.updateOne({'accountId':mongoose.Types.ObjectId(userTwo)}, {$set:{leaseID:getLease._id.toString()}});
                 return res.send(userTwo + " is you roommate now, time to meet an agent");
             }
 
@@ -414,6 +418,9 @@ const filterOne = async function(userID, pref){
     // query the other user data
     const userMatches = await users.find(userQueryObject);
     const userQMatches = await usersAns.find(questionQueryObject);
+    console.log(userQueryObject);
+    console.log(userMatches);
+    console.log(userQMatches);
 
     const idOne = userMatches.map(value => value.accountId.toString());
     const idTwo = userQMatches.map(value => value.accountId.toString());
