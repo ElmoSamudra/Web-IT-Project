@@ -4,7 +4,7 @@ const sendgridApiKey = "SG.5neARpO-SMCxXZDTnT7duQ.A84dJmPoacTGe-jkIBOMrUmpJc9BwH
 sgMail.setApiKey(sendgridApiKey)
 
 //Send email upon registration and by user request
-const sendVerificationEmail = async (account, serverUrl) =>{
+const sendVerificationEmail = async (serverUrl) =>{
     try{
         let url =  serverUrl + "/verification-management/verifyEmail/"+ account.emailVerificationToken
         await sgMail.send({

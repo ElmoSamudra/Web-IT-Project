@@ -1,3 +1,4 @@
+//Gets url of current server (heroku or localhost)
 const getUrl = async (req, res, next) =>{
     try{
         req.serverUrl = req.protocol + '://' + req.get('host');

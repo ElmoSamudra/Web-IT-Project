@@ -18,8 +18,7 @@ const register = async (req, res) => {
         const token = await newAccount.generateAuthToken()
         await newAccount.generateEmailToken()
         console.log(req.get("host"))
-        let serverUrl = req.protocol + '://' + req.get('host');
-        await emailController.sendVerificationEmail(newAccount, serverUrl)
+        await emailController.sendVerificationEmail(req.serverUrl)
         res.status(201).send({token})
     }catch (e) {
         res.status(400).send("Error")
@@ -100,9 +99,8 @@ const updateMe = async (req, res) => {
         updates.forEach((update)=> {
             account[update] = req.body[update]})
         if (account.email != accountPreviousEmail){
-            let serverUrl = req.protocol + '://' + req.get('host');
             await account.generateEmailToken()
-            await emailController.sendVerificationEmail(account, serverUrl)
+            await emailController.sendVerificationEmail(req.serverUrl)
         }
         await account.save()
         res.status(200).send(account)
