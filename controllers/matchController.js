@@ -26,7 +26,7 @@ const runMatchAlgo = async (req, res) => {
             const userProf = await users.findOne({'accountId':idUser});
             const getAll = await users.find({'accountId':{$ne:idUser}, 'gender':userProf.gender, 'nationality':userProf.nationality});
             const firstFilter = getAll.map(value => value.accountId);
-            await users.updateOne({'accountId':isUser}, {$set:{'matchBuffer':firstFilter}});
+            await users.updateOne({'accountId':idUser}, {$set:{'matchBuffer':firstFilter}});
 
             // sort the filter
             const secondFilter = await filterTwo(idUser, firstFilter, {});
@@ -38,7 +38,7 @@ const runMatchAlgo = async (req, res) => {
                 sortedMatchUser.push(sortResult[sortResult.findIndex(x => x.accountId.toString() === sortOrder.toString())]);
             })
 
-            res.render('matchProfile', {sortedMatchUser:sortedMatchUser, idUser:idUser});
+            return res.render('matchProfile', {sortedMatchUser:sortedMatchUser, idUser:idUser});
         }
 
         // filter match found
@@ -183,13 +183,17 @@ const matchedClick = async function(req, res){
 
         // the other user has pressed the match click, got a roommee here
         if(confirm==='confirmed'){
+            
             // start creating the lease here 
-            let newLeaseOne = usersLease({});
-            let newLeaseTwo = usersLease({});
-            newLeaseOne.accountId = req.account._id;
-            newLeaseTwo.accountId = userTwo;
-            await newLeaseOne.save();
-            await newLeaseTwo.save();
+            let newLease = usersLease({});
+            newLease.residentOne = req.account._id.toString();
+            newLease.residentTwo = userTwo;
+            newLease.status = 'not legal';
+            await newLease.save();
+
+            // update the user to set their leaseID
+            await users.updateOne({'accoundId':req.account._id}, {$set:{'leaseID':newLease._id.toString()}});
+            await users.updateOne({'accoundId':mongoose.Types.ObjectId(residentTwo)}, {$set:{'leaseID':newLease._id.toString()}});
             res.send(userTwo + " is you roommate now, time to meet an agent");
         }else if(confirm==='clash-properties'){
             res.send('Cannot do match, both user have properties listed');
@@ -198,7 +202,7 @@ const matchedClick = async function(req, res){
         }
     }else{
         // This should happen in the chat
-        res.send("You already have a roommee, please remove them first");
+        res.send("You have clicked the match button with another roommee, please undo it first");
     }
     
 }
@@ -241,30 +245,38 @@ const removeRoommee = async function (req, res){
     // ini keknya perlu confirmation juga deh, tambahin!!!
     
     const user = await users.findOne({'accountId':req.account._id});
+    const leaseID = user.leaseID
+    const lease = await usersLease.findOne({"_id":mongoose.Types.ObjectId(leaseID)});
+    const leaseStatus = lease.status;
+    
+    if(leaseStatus==='legal'){
+        return res.send('Lease has been legalized, you will breach the contract for changing roommee');
+    }
+    
     const confirm = await removeConfirmation(req, res, user);
     
     if(confirm==='remove'){
 
         // update removal for other match user as well
         await usersMatch.updateOne({'accountId':mongoose.Types.ObjectId(user.roommee)}, {$set:{'clickedMatch':'none', 'changeRoommee':false}});
-        await users.updateOne({'accountId':mongoose.Types.ObjectId(user.roommee)}, {$set:{'roommee':'none'}});
+        await users.updateOne({'accountId':mongoose.Types.ObjectId(user.roommee)}, {$set:{'roommee':'none', 'leaseID':'none'}});
         
         // update removal for the user
         await usersMatch.updateOne({'accountId':req.account._id}, {$set:{'clickedMatch':'none', 'changeRoommee':false}});
-        await users.updateOne({'accountId':req.account._id}, {$set:{'roommee':'none'}});
+        await users.updateOne({'accountId':req.account._id}, {$set:{'roommee':'none', 'leaseID':'none'}});
 
         //check if the updte has been conducted successfully or not
         const confirmRemove = await users.findOne({'accountId':req.account._id});
         
         if(confirmRemove.roommee==='none'){
             // delete the lease as well
-            await usersLease.deleteOne({'accountId':req.account._id});
-            res.send('Roommee has been removed, please find a new one');
+            await usersLease.deleteOne({'_id':leaseID});
+            return res.send('Roommee has been removed, please find a new one');
         }else{
-            res.send('failed to remove roommee, please try again');
+            return res.send('failed to remove roommee, please try again');
         }
     }else{
-        res.send('Please wait for the other roommee confirmation');
+        return res.send('Please wait for the other roommee confirmation');
     }
 }
 

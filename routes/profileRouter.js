@@ -8,7 +8,7 @@ const profileController = require('../controllers/profileController.js');
 const auth = require("../middleware/authentication");
 
 // fill the user profile
-//profileRouter.get("/new",auth, (req, res) => {res.render("profileForm")});
+profileRouter.get("/new",auth, (req, res) => {res.render("profileForm")});
 // save the user profile
 profileRouter.post("/new",auth, (req, res) => {profileController.newUserProfile(req, res)});
 // get the profile for user

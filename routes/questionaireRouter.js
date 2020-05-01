@@ -8,10 +8,7 @@ const qController = require('../controllers/qController.js');
 const auth = require("../middleware/authentication");
 
 // ask the user questionaire
-// questionaireRouter.get('/new/:id', (req, res) =>{
-//     const userID = req.params.id;
-//     res.render("questionaireForm", {userID:userID});
-// });
+questionaireRouter.get('/new', auth, (req, res) =>{res.render("questionaireForm")});
 // save the questionaire answer of user with specified id
 questionaireRouter.post("/new", auth, (req, res) => {qController.addAnswerQ(req, res)});
 // get the questionaire answer for user

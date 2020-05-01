@@ -3,7 +3,7 @@
 <h1>Match Status</h1>
 <h3>Profile</h3>
 
-<form action="/fill-status-match/<%=data.id%>" method='POST'>
+<form action="/user-match/fill-status" method='POST'>
     
     <ol>
     <% pending.forEach(function(pendingYes){ %>
@@ -29,7 +29,7 @@
         <%}%>
     <%});%>
     <% reject.forEach(function(rejectNo){ %>
-        <li>Name: <%=rejectNo.firstName+" "+rejectNo.lastName%></li>
+        <li>Name: <%=rejectNo.firstName+" "+rejectNo.surName%></li>
         <ul>
             <li>Gender: <%=rejectNo.gender%></li>
             <li>Nationality: <%=rejectNo.nationality%></li>
