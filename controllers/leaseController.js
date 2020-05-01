@@ -20,8 +20,10 @@ const getLease = async (req, res) => {
         const roommeeData =  await users.findOne({'accountId':matchedRoommee});
         const resident2 = roommeeData.firstName + " " + roommeeData.surName;
 
-        const leaseData = await leases.findOne({'accountId':currentUserId});
-
+        const leaseId = currentUserData.leaseID;
+        console.log(leaseId)
+        const leaseData = await leases.findOne({'_id':leaseId});
+        console.log(leaseData)
         const propertyUsed = leaseData.propertyId;
         
         console.log(propertyUsed);
