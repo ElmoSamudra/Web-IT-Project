@@ -15,13 +15,15 @@
             <li>Language: <%=pendingYes.language%></li>
             <li>Find a place to stay in: <%=pendingYes.preferStay%></li>
         </ul>
-        <label>Ring Roommee?</label>
-        <input type="text" name = "<%=pendingYes.accountId%>" value ="yes" required>
         <% if(data.chat.indexOf(pendingYes.accountId.toString())===-1){ %>
+            <label>Ring Roommee?</label>
+            <input type="text" name = "<%=pendingYes.accountId%>" value ="yes" required>
             <p>Pending Invitation</p>
         <%}else if(data.clickedMatch===pendingYes.accountId.toString()){%>
             <p>Roommee :)</p>
         <%}else{%>
+            <label>Ring Roommee?</label>
+            <input type="text" name = "<%=pendingYes.accountId%>" value ="yes" required>
             <p>Go and Say HI!</p>
             <button formaction = "/chat" formmethod='GET'>Chat</button>
         <%}%>

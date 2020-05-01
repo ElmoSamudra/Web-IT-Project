@@ -79,7 +79,6 @@ const customisePref = async (req, res) => {
 // check for the match status here
 const clickMatch = async function(req, res){
     
-    console.log('masuk controller');
     const userID = req.account._id;
     const matchIDs = Object.keys(req.body);
     const userMatch = await usersMatch.findOne({'accountId':userID});
@@ -302,7 +301,6 @@ const getMyRoommee = async (req, res) => {
 // check if there is a chat match
 const checkMatch = async function(userID, matchID, ans){
     
-    console.log('enter');
     const matchRes = await usersMatch.findOne({'accountId':mongoose.Types.ObjectId(matchID), 'yes':{$in:userID.toString()}});
     // Enable chat 
     if(matchRes){
@@ -331,8 +329,12 @@ const filterOne = async function(userID, pref){
     let userQueryObject = {};
     let questionQueryObject = {};
 
-    // essential data needed for other user
-    userQueryObject.accountId = {$ne:userID};
+    // user with roommee could still do matching
+    if(user.roommee!=='none'){
+        userQueryObject.accountId = {$nin:[userID, mongoose.Types.ObjectId(user.roommee)]};
+    }else{
+        userQueryObject.accountId = {$ne:userID};
+    }
     userQueryObject.roommee = 'none';
 
     // for preference
@@ -364,22 +366,14 @@ const filterOne = async function(userID, pref){
     }
     if(prefFilter.sameLangPref==='yes'){
         userQueryObject.language = {$in:user.language};
-    }
-    console.log(userQueryObject);
-    console.log(questionQueryObject);   
+    }  
     // query the other user data
     const userMatches = await users.find(userQueryObject);
     const userQMatches = await usersAns.find(questionQueryObject);
-    
-
-    console.log(userMatches);
-    console.log(userQMatches);
 
     const idOne = userMatches.map(value => value.accountId.toString());
     const idTwo = userQMatches.map(value => value.accountId.toString());
     const matchID = idOne.filter(value => idTwo.includes(value));
-
-    console.log(matchID);
 
     return matchID;
 }
