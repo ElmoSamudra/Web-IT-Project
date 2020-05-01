@@ -9,11 +9,12 @@ const getAllAgents2 = (req,res) =>{
 
 const chooseProperty = async function(req, res) {
   try {
-    res.send("You have chosen this property");
     
     await Lease.updateOne({ accountId: req.account._id }, 
                               {$set:{'propertyId': req.params.propertyId}}
                               );
+
+    res.render("leaseDate.ejs", {agentsTest:agentsTest});
    
   }
   catch (e) {
