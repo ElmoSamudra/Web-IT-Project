@@ -84,7 +84,7 @@ const newUserProfile = async (req, res) => {
         }else{
             console.log(userQ + " saved to User collection.");
             //res.send(userQ);
-            res.redirect('user-profile/');
+            res.redirect('/user-profile');
         }
     });
 };
