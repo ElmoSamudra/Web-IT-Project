@@ -14,8 +14,8 @@ const getUserQuestionaire = (req, res) => {
         }else{
             if(userQuestionaire){
                 console.log("Get the user questionaire");
-                res.send(userQuestionaire);
-                /*res.render("userQuestionaire", {userQuestionaire:userQuestionaire});*/
+                //res.send(userQuestionaire);
+                res.render("userQuestionaire", {userQuestionaire:userQuestionaire});
             }else{
                 console.log("need to create user questionaire");
                 res.send("Please create a user questionaire first");

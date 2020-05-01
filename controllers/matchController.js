@@ -5,6 +5,7 @@ var users = require('../models/userDB.js');
 var usersAns = require('../models/userQDB.js');
 var usersMatch = require('../models/matchDB.js');
 var usersLease = require('../models/leaseDB.js');
+var properties = require('../models/agentDB.js');
 
 // -------------------------------Match Algorithm--------------------------------
 
@@ -38,7 +39,7 @@ const runMatchAlgo = async (req, res) => {
                 sortedMatchUser.push(sortResult[sortResult.findIndex(x => x.accountId.toString() === sortOrder.toString())]);
             })
 
-            res.render('matchProfile', {sortedMatchUser:sortedMatchUser, idUser:idUser});
+            return res.render('matchProfile', {sortedMatchUser:sortedMatchUser, idUser:idUser});
         }
 
         // filter match found
@@ -183,22 +184,57 @@ const matchedClick = async function(req, res){
 
         // the other user has pressed the match click, got a roommee here
         if(confirm==='confirmed'){
+            
             // start creating the lease here 
-            let newLeaseOne = usersLease({});
-            let newLeaseTwo = usersLease({});
-            newLeaseOne.accountId = req.account._id;
-            newLeaseTwo.accountId = userTwo;
-            await newLeaseOne.save();
-            await newLeaseTwo.save();
-            res.send(userTwo + " is you roommate now, time to meet an agent");
+            let newLease = usersLease({});
+            newLease.residentOne = req.account._id.toString();
+            newLease.residentTwo = userTwo;
+            newLease.status = 'not legal';
+            //await newLease.save();
+            
+            const roommeeOne = await users.findOne({'accountId':req.account._id});
+            const roommeeTwo = await users.findOne({'accountId':mongoose.Types.ObjectId(userTwo)});
+
+            // check if the user has listed a property or not
+            if(roommeeOne.listProperty===true || roommeeTwo.listProperty===true){
+                try{
+                    if(roommeeOne.listProperty){
+                        var propertyId = roommeeOne.accountId.toString();
+                    }else{
+                        var propertyId = roommeeTwo.accountId.toString();
+                    }
+                    const userProperty = await properties.findOne({'propertyId':propertyId});
+
+                    // update lease
+                    newLease.propertyId = propertyId;
+                    newLease.utils = userProperty.utils;
+                    newLease.status = 'legal';
+                    await newLease.save();
+                    
+                    const getLease = await usersLease.findOne({'residentOne':req.account._id.toString()});
+                    
+                    await users.updateOne({'accountId':req.account.id}, {$set:{leaseID:getLease._id.toString()}});
+                    await users.updateOne({'accountId':mongoose.Types.ObjectId(userTwo)}, {$set:{leaseID:getLease._id.toString()}});
+                    
+                    res.send('You got a roommee, the only thing you need to do now is to fill the start and end date');
+                    //return res.redirect('/user-lease/')
+                }catch(err){
+                    console.log(err);
+                    return res.send('This functionality is not ready, but this is not our main functionality :)');
+                }
+            }else{
+                await newLease.save();
+                return res.send(userTwo + " is you roommate now, time to meet an agent");
+            }
+
         }else if(confirm==='clash-properties'){
-            res.send('Cannot do match, both user have properties listed');
+            return res.send('Cannot do match, both user have properties listed');
         }else{
-            res.send('Please wait for your roommee confirmation');
+            return res.send('Please wait for your roommee confirmation');
         }
     }else{
         // This should happen in the chat
-        res.send("You already have a roommee, please remove them first");
+        res.send("You have clicked the match button with another roommee, please undo it first");
     }
     
 }
@@ -241,30 +277,38 @@ const removeRoommee = async function (req, res){
     // ini keknya perlu confirmation juga deh, tambahin!!!
     
     const user = await users.findOne({'accountId':req.account._id});
+    const leaseID = user.leaseID
+    const lease = await usersLease.findOne({"_id":mongoose.Types.ObjectId(leaseID)});
+    const leaseStatus = lease.status;
+    
+    if(leaseStatus==='legal'){
+        return res.send('Lease has been legalized, you will breach the contract for changing roommee');
+    }
+    
     const confirm = await removeConfirmation(req, res, user);
     
     if(confirm==='remove'){
 
         // update removal for other match user as well
         await usersMatch.updateOne({'accountId':mongoose.Types.ObjectId(user.roommee)}, {$set:{'clickedMatch':'none', 'changeRoommee':false}});
-        await users.updateOne({'accountId':mongoose.Types.ObjectId(user.roommee)}, {$set:{'roommee':'none'}});
+        await users.updateOne({'accountId':mongoose.Types.ObjectId(user.roommee)}, {$set:{'roommee':'none', 'leaseID':'none'}});
         
         // update removal for the user
         await usersMatch.updateOne({'accountId':req.account._id}, {$set:{'clickedMatch':'none', 'changeRoommee':false}});
-        await users.updateOne({'accountId':req.account._id}, {$set:{'roommee':'none'}});
+        await users.updateOne({'accountId':req.account._id}, {$set:{'roommee':'none', 'leaseID':'none'}});
 
         //check if the updte has been conducted successfully or not
         const confirmRemove = await users.findOne({'accountId':req.account._id});
         
         if(confirmRemove.roommee==='none'){
             // delete the lease as well
-            await usersLease.deleteOne({'accountId':req.account._id});
-            res.send('Roommee has been removed, please find a new one');
+            await usersLease.deleteOne({'_id':leaseID});
+            return res.send('Roommee has been removed, please find a new one');
         }else{
-            res.send('failed to remove roommee, please try again');
+            return res.send('failed to remove roommee, please try again');
         }
     }else{
-        res.send('Please wait for the other roommee confirmation');
+        return res.send('Please wait for the other roommee confirmation');
     }
 }
 
