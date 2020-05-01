@@ -23,9 +23,13 @@ const getLease = async (req, res) => {
         const leaseData = await leases.findOne({'accountId':currentUserId});
 
         const propertyUsed = leaseData.propertyId;
+        
         console.log(propertyUsed);
         const propertyData = await agents.findOne({'propertyId':propertyUsed});
         console.log(propertyData);
+        if (propertyData == null) {
+            return res.send("Please choose a property first.")
+        }
         const agencyUsed = propertyData.agency;
         const agentUsed = propertyData.first_name + " " + propertyData.last_name;
         const location = propertyData.locationAdress;
