@@ -216,7 +216,11 @@ const matchedClick = async function(req, res){
                     await users.updateOne({'accountId':req.account.id}, {$set:{leaseID:getLease._id.toString()}});
                     await users.updateOne({'accountId':mongoose.Types.ObjectId(userTwo)}, {$set:{leaseID:getLease._id.toString()}});
                     
-                    res.send('You got a roommee, the only thing you need to do now is to fill the start and end date');
+                    // directly choose the start and end date of the lease, as both user does not need to choose an agent anymore
+                    // test here
+                    return res.redirect('/agent-management/setPropertyDate')
+
+                    //res.send('You got a roommee, the only thing you need to do now is to fill the start and end date');
                     //return res.redirect('/user-lease/')
                 }catch(err){
                     console.log(err);
