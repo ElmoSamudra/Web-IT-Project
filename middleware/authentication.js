@@ -14,7 +14,7 @@ const auth = async (req, res, next) =>{
         req.token = token
         req.account = account
         //Code that attached what is the Url of server for later use
-        req.serverUrl = req.protocol + '://' + req.get('host');
+        //req.serverUrl = req.protocol + '://' + req.get('host');
         console.log("Authentication completed");
         next()
 

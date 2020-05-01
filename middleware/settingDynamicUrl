@@ -1,0 +1,13 @@
+const getUrl = async (req, res, next) =>{
+    try{
+        req.serverUrl = req.protocol + '://' + req.get('host');
+        console.log("$$$$$$$$$$$$$$$$$$$$ " + req.serverUrl)
+        next()
+
+    }catch (e) {
+        console.log(e)
+        res.status(401).send()
+    }
+
+}
+module.exports = getUrl
