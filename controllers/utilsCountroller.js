@@ -11,7 +11,6 @@ const getAllUtils2 =(req,res) =>{
 
 const chooseUtils = async function(req, res) {
   try {
-    res.send("You have chosen this company");
     const currentUserId = req.account._id;
     const currentUserData = await users.findOne({'accountId':currentUserId});
     const leaseId = currentUserData.leaseID;
@@ -19,9 +18,7 @@ const chooseUtils = async function(req, res) {
     await Lease.updateOne({ '_id': leaseId }, 
                             {$push:{'utils': req.params.utilsId}}
                             );
-
-    
-   
+    res.send("You have chosen this company");
   }
   catch (e) {
     console.log(e);
