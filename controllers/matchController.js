@@ -99,7 +99,7 @@ const clickMatch = async function(req, res){
 
         // loop each match id
         matchIDs.forEach(key => {
-            const ans = req.body[key];
+            const ans = req.body[key].toLowerCase();
             if(ans==='yes'){
                 newUserMatch.yes.push(key.toString());
                 checkMatch(userID, key, ans);
@@ -121,7 +121,7 @@ const clickMatch = async function(req, res){
     }else{
         // loop through each match id
         matchIDs.forEach(key => {
-            const ans = req.body[key];
+            const ans = req.body[key].toLowerCase();
             
             if(ans==='yes'){
                 // no duplicate

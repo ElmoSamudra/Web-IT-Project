@@ -47,11 +47,11 @@ const updateUserQuestionaire = (req, res) => {
     let updateQuestionaire = {};
     
     // filter 1
-    updateQuestionaire['filter1.sameNationalityPref'] = req.body.sameNationalityPref;
-    updateQuestionaire['filter1.sameGenderPref'] = req.body.sameGenderPref;
-    updateQuestionaire['filter1.sameLocationPref'] = req.body.sameLocationPref;
-    updateQuestionaire['filter1.petsPref'] = req.body.petsPref;
-    updateQuestionaire['filter1.sameLangPref'] = req.body.sameLangPref;
+    updateQuestionaire['filter1.sameNationalityPref'] = req.body.sameNationalityPref.toLowerCase();
+    updateQuestionaire['filter1.sameGenderPref'] = req.body.sameGenderPref.toLowerCase();
+    updateQuestionaire['filter1.sameLocationPref'] = req.body.sameLocationPref.toLowerCase();
+    updateQuestionaire['filter1.petsPref'] = req.body.petsPref.toLowerCase();
+    updateQuestionaire['filter1.sameLangPref'] = req.body.sameLangPref.toLowerCase();
     updateQuestionaire['filter1.numRoommeePref'] = req.body.numRoommeePref;
     updateQuestionaire['filter1.ageDiffRange'] = range(req.body.ageFrom, req.body.ageTo);
 
@@ -87,11 +87,11 @@ const addAnswerQ = async (req, res) => {
         ({
             accountId: req.account._id,
             filter1:{
-                sameNationalityPref: req.body.sameNationalityPref,
-                sameGenderPref: req.body.sameGenderPref,
-                sameLocationPref: req.body.sameLocationPref,
-                petsPref: req.body.petsPref,
-                sameLangPref: req.body.sameLangPref,
+                sameNationalityPref: req.body.sameNationalityPref.toLowerCase(),
+                sameGenderPref: req.body.sameGenderPref.toLowerCase(),
+                sameLocationPref: req.body.sameLocationPref.toLowerCase(),
+                petsPref: req.body.petsPref.toLowerCase(),
+                sameLangPref: req.body.sameLangPref.toLowerCase(),
                 numRoommeePref: req.body.numRoommeePref,
                 ageDiffRange: range(req.body.ageFrom, req.body.ageTo)
             },
