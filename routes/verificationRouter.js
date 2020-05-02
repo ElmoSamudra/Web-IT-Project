@@ -28,8 +28,8 @@ verificationRouter.post('/documentScan/me/passportUpload/',auth, upload.single('
 verificationRouter.get('/documentScan/me/picture/:kindOfDocument',auth,getUrl, (req,res) => verificationController.getMyScanPicture (req, res))
 verificationRouter.get('/documentScan/me/:kindOfDocument',auth,getUrl, (req,res) => verificationController.getMyScanStatus (req, res))
 verificationRouter.delete('/documentScan/me/',auth,getUrl, (req, res) => verificationController.deleteMyScan(req, res))
+verificationRouter.get('/verifyEmail/sendAgain/', auth,getUrl, (req,res)=> verificationController.resendVerificationEmail(req,res))
 verificationRouter.get('/verifyEmail/:id',(req,res)=> verificationController.verifyEmail(req,res))
-verificationRouter.post('/verifyEmail/sendAgain', auth,getUrl, (req,res)=> verificationController.resendVerificationEmail(req,res))
 verificationRouter.get('/documentScan/admin/',auth,getUrl, (req,res) => verificationController.getScanForAdmin (req, res))
 //Code for rejection or approval od ID documents by amdin
 verificationRouter.get('/documentScan/admin/reject/:id',auth,getUrl, (req,res) => verificationController.changeDocumentStatus (req, res, "Rejected"))
