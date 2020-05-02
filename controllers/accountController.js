@@ -100,7 +100,7 @@ const updateMe = async (req, res) => {
             account[update] = req.body[update]})
         if (account.email != accountPreviousEmail){
             await account.generateEmailToken()
-            await emailController.sendVerificationEmail(req.serverUrl)
+            await emailController.sendVerificationEmail(req.serverUrl, account)
         }
         await account.save()
         res.status(200).send(account)

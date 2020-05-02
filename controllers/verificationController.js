@@ -130,6 +130,10 @@ const getScanForAdmin = async (req, res)=>{
         }
 
         let one = await DocumentScan.findOne({approved: "Pending"}).populate("submittedBy").exec()
+        console.log(one)
+        if(!one){
+            res.send("No pictures available")
+        }
         let response= {
             name: one.submittedBy.name,
             surname: one.submittedBy.surname,
