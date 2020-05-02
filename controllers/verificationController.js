@@ -114,6 +114,7 @@ const verifyEmail = async (req, res) =>{
 //Send new verification email to the user
 const resendVerificationEmail = async (req, res)=>{
     try{
+        console.log(req)
         await req.account.generateEmailToken()
         await emailController.sendVerificationEmail(req.serverUrl, req.account)
         res.status(200).send("Success")
