@@ -124,6 +124,7 @@ const clickMatch = async function(req, res){
             const ans = req.body[key].toLowerCase();
             
             if(ans==='yes'){
+                console.log(key)
                 // no duplicate
                 if(userMatch.yes.indexOf(key.toString())===-1){
                     userMatch.yes.push(key.toString());
@@ -422,9 +423,9 @@ const filterOne = async function(userID, pref){
     // query the other user data
     const userMatches = await users.find(userQueryObject);
     const userQMatches = await usersAns.find(questionQueryObject);
-    console.log(userQueryObject);
-    console.log(userMatches);
-    console.log(userQMatches);
+    // console.log(userQueryObject);
+    // console.log(userMatches);
+    // console.log(userQMatches);
 
     const idOne = userMatches.map(value => value.accountId.toString());
     const idTwo = userQMatches.map(value => value.accountId.toString());

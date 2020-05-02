@@ -36,7 +36,7 @@ const updateUserProfile = (req, res) => {
     keys.forEach(key =>{
         if(key=='language' || key=='Hobby' || key=='preferStay'){
             updateProf[key] = (req.body[key]).split(',');
-            newUser[key] = newUser.map(value=>value.toLowerCase());
+            updateProf[key] = updateProf[key].map(value=>value.toLowerCase());
         }else{
             updateProf[key] = req.body[key];
         }
@@ -71,7 +71,7 @@ const newUserProfile = async (req, res) => {
     keys.forEach(key =>{
         if(key=='language' || key=='Hobby' || key=='preferStay'){
             newUser[key] = (req.body[key]).split(',');
-            newUser[key] = newUser.map(value=>value.toLowerCase());
+            newUser[key] = newUser[key].map(value=>value.toLowerCase());
         }else{
             newUser[key] = req.body[key];
         }
