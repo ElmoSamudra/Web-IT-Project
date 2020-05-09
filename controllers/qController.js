@@ -35,7 +35,7 @@ const updateQuestionaireRedirect = (req, res) => {
             res.send('Update redirect failed');
         }else{
             //console.log("Update questionaire redirect");
-            res.render("userQuestionaireUpdate", {qAns:qAns});
+            res.send(qAns);
         }
     });
 }

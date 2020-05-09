@@ -17,7 +17,7 @@ questionaireRouter.post("/new", auth, (req, res) => {qController.addAnswerQ(req,
 // get the questionaire answer for user
 questionaireRouter.get("/", auth, (req, res) => {qController.getUserQuestionaire(req, res)});
 // redirect to update questionaire
-questionaireRouter.get("/update", auth, (req, res) =>{qController.updateQuestionaireRedirect(req, res)});
+//questionaireRouter.get("/update", auth, (req, res) =>{qController.updateQuestionaireRedirect(req, res)});
 // update the user questionaire answer
 questionaireRouter.post("/update", auth, (req, res) => {qController.updateUserQuestionaire(req, res)});
 
