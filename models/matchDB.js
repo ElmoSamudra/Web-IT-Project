@@ -10,7 +10,8 @@ var matchSchema = new mongoose.Schema({
     chat:[String],
     clickedMatch:String,
     changeRoommee:Boolean
-});
+},
+{versionKey: false});
 
 // compile the model into variable User (User takes the Schema pattern)
 // mongoose will make a collection called users automatically (from User+'s')
