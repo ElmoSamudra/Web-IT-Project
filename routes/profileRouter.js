@@ -14,7 +14,7 @@ profileRouter.post("/new",auth, (req, res) => {profileController.newUserProfile(
 // get the profile for user
 profileRouter.get("/",auth, (req, res) => {profileController.getUserProfile(req, res)});
 // fill the update for user profile 
-profileRouter.get("/update",auth, (req, res) => {profileController.updateRedirect(req, res)});
+// profileRouter.get("/update",auth, (req, res) => {profileController.updateRedirect(req, res)});
 // update the user profile
 profileRouter.post("/update",auth, (req, res) => {profileController.updateUserProfile(req, res)});
 

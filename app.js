@@ -1,10 +1,13 @@
 const express = require('express');
 const bodyParser = require('body-parser');
+// implement this to allow all website interaction
+var cors = require('cors');
 
 
 //Connect to database in MongoDB Atlas upon start of application
 require('./db/mongoose');
 const app = express();
+app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: true}));
 app.set("view engine", "ejs");
