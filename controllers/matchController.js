@@ -181,6 +181,7 @@ const clickMatch = async function (req, res) {
 // after press button, can get all status
 const getUserMatch = async function (req, res) {
   const userID = req.account._id;
+  let returnObj = {};
   const data = await usersMatch.findOne({ accountId: userID });
   const pending = await users.find({
     accountId: { $in: data.yes.map((value) => mongoose.Types.ObjectId(value)) },
@@ -188,7 +189,12 @@ const getUserMatch = async function (req, res) {
   const reject = await users.find({
     accountId: { $in: data.no.map((value) => mongoose.Types.ObjectId(value)) },
   });
-  res.render("matchStatus", { data: data, pending: pending, reject: reject });
+  returnObj.userMatchData = data;
+  returnObj.pendingStatus = pending;
+  returnObj.rejectStatus = reject;
+  console.log(returnObj);
+  //res.render("matchStatus", { data: data, pending: pending, reject: reject });
+  res.send(returnObj);
 };
 
 // update if there is a match for roommee
