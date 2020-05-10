@@ -1,10 +1,10 @@
-const express = require('express');
+const express = require("express");
 
 // add our router
 const questionaireRouter = express.Router();
 
 // get the controller
-const qController = require('../controllers/qController.js');
+const qController = require("../controllers/qController.js");
 const auth = require("../middleware/authentication");
 
 // ask the user questionaire
@@ -13,12 +13,18 @@ const auth = require("../middleware/authentication");
 //     res.render("questionaireForm", {userID:userID});
 // });
 // save the questionaire answer of user with specified id
-questionaireRouter.post("/new", auth, (req, res) => {qController.addAnswerQ(req, res)});
+questionaireRouter.post("/new", auth, (req, res) => {
+  qController.addAnswerQ(req, res);
+});
 // get the questionaire answer for user
-questionaireRouter.get("/", auth, (req, res) => {qController.getUserQuestionaire(req, res)});
+questionaireRouter.get("/", auth, (req, res) => {
+  qController.getUserQuestionaire(req, res);
+});
 // redirect to update questionaire
-questionaireRouter.get("/update", auth, (req, res) =>{qController.updateQuestionaireRedirect(req, res)});
+//questionaireRouter.get("/update", auth, (req, res) =>{qController.updateQuestionaireRedirect(req, res)});
 // update the user questionaire answer
-questionaireRouter.post("/update", auth, (req, res) => {qController.updateUserQuestionaire(req, res)});
+questionaireRouter.post("/update", auth, (req, res) => {
+  qController.updateUserQuestionaire(req, res);
+});
 
 module.exports = questionaireRouter;
