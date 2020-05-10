@@ -192,7 +192,6 @@ const getUserMatch = async function (req, res) {
   returnObj.userMatchData = data;
   returnObj.pendingStatus = pending;
   returnObj.rejectStatus = reject;
-  console.log(returnObj);
   //res.render("matchStatus", { data: data, pending: pending, reject: reject });
   res.send(returnObj);
 };
