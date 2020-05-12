@@ -60,7 +60,7 @@ const updateUserQuestionaire = (req, res) => {
   // filter 2
   updateQuestionaire["filter2.homeCookRate"] = req.body.homeCookRate;
   updateQuestionaire["filter2.nightOwlRate"] = req.body.nightOwlRate;
-  updateQuestionaire["filter2.playMusicRate"] = req.body.playMusicRate;
+  updateQuestionaire["filter2.playsMusicRate"] = req.body.playsMusicRate;
   updateQuestionaire["filter2.seekIntrovertRate"] = req.body.seekIntrovertRate;
   updateQuestionaire["filter2.seekExtrovertRate"] = req.body.seekExtrovertRate;
   updateQuestionaire["filter2.cleanlinessToleranceRate"] =
