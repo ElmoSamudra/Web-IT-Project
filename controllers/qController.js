@@ -66,6 +66,7 @@ const updateUserQuestionaire = (req, res) => {
   updateQuestionaire["filter2.cleanlinessToleranceRate"] =
     req.body.cleanlinessToleranceRate;
 
+  console.log(updateQuestionaire);
   // update the user questionaire
   usersAns.updateOne(
     { accountId: userID },
