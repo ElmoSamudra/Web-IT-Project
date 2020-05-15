@@ -13,7 +13,6 @@ const sendVerificationEmail = async (serverUrl, account) =>{
             subject: 'Verification email for ' + account.name,
             text: "Click this link to verify account: " + url
         })
-
         console.log(url)
 
     }catch (e) {
