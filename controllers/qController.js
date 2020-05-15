@@ -18,7 +18,8 @@ const getUserQuestionaire = (req, res) => {
         /*res.render("userQuestionaire", {userQuestionaire:userQuestionaire});*/
       } else {
         console.log("need to create user questionaire");
-        res.send("Please create a user questionaire first");
+        emptyQ(req, res);
+        //res.send();
         // res.redirect("/user-questionaire/new");
       }
     }
@@ -109,6 +110,45 @@ const addAnswerQ = async (req, res) => {
       seekIntrovertRate: req.body.seekIntrovertRate,
       seekExtrovertRate: req.body.seekExtrovertRate,
       cleanlinessToleranceRate: req.body.cleanlinessToleranceRate,
+    },
+  });
+  newUserQ.save(function (err, userQ) {
+    if (err) {
+      res.status(400);
+      res.send("Create new user questionaire failed");
+    } else {
+      console.log("Created new user questionaire");
+      res.send(userQ);
+      //res.redirect('/questionaire/'+userQ._id);
+    }
+  });
+};
+
+const emptyQ = async (req, res) => {
+  const findQ = await usersAns.findOne({ accountId: req.account._id });
+  if (findQ) {
+    return res.send(
+      "User already created user questionaire, please to update instead"
+    );
+  }
+  let newUserQ = new usersAns({
+    accountId: req.account._id,
+    filter1: {
+      sameNationalityPref: "",
+      sameGenderPref: "",
+      sameLocationPref: "",
+      petsPref: "",
+      sameLangPref: "",
+      numRoommeePref: "",
+      ageDiffRange: range(0,0),
+    },
+    filter2: {
+      homeCookRate: 0,
+      nightOwlRate: 0,
+      playsMusicRate: 0,
+      seekIntrovertRate: 0,
+      seekExtrovertRate: 0,
+      cleanlinessToleranceRate: 0,
     },
   });
   newUserQ.save(function (err, userQ) {

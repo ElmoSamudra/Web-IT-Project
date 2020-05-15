@@ -7,12 +7,18 @@ const getUserProfile = (req, res) => {
     if (err) {
       console.log(err);
       res.send("Error");
-    } else {
-      //res.render("userProfile", {userProf:userProf});
-      res.send(userProf);
     }
-  });
-};
+    else {
+      if (userProf) {
+        console.log("Get the userprofile");
+        res.send(userProf);
+      }
+      else {
+        console.log("need to create user profile");
+        emptyProfile(req, res);    
+      }
+    }
+})};
 
 // this controller is used for redirect only, !NOT USED UNTIL FRONT END PROJECT PHASE!
 const updateRedirect = (req, res) => {
@@ -71,6 +77,46 @@ const newUserProfile = async (req, res) => {
   keys.forEach((key) => {
     if (key == "language" || key == "Hobby" || key == "preferStay") {
       newUser[key] = req.body[key].split(",");
+    } else {
+      newUser[key] = "";
+    }
+  });
+
+  newUser.accountId = req.account._id;
+  newUser.firstName = "";
+  newUser.surName = "";
+  newUser.roommee = "none";
+  newUser.listProperty = false;
+
+  // save the new user
+  newUser.save(function (err, userQ) {
+    if (err) {
+      console.error("err");
+    } else {
+      console.log(userQ + " saved to User collection.");
+      res.send(userQ);
+      /*res.redirect("/profile/"+curID);*/
+    }
+  });
+};
+
+
+
+const emptyProfile = async (req, res) => {
+  const findUser = await users.findOne({ accountId: req.account._id });
+
+  if (findUser) {
+    return res.send(
+      "user profile has already been created, please update it instead"
+    );
+  }
+
+  const keys = Object.keys(req.body);
+  let newUser = new users({});
+  // iterate for each class
+  keys.forEach((key) => {
+    if (key == "language" || key == "Hobby" || key == "preferStay") {
+      newUser[key] = [];
     } else {
       newUser[key] = req.body[key];
     }
