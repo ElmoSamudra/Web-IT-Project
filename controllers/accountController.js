@@ -21,8 +21,33 @@ const register = async (req, res) => {
         await emailController.sendVerificationEmail(req.serverUrl, newAccount)
         res.status(201).send({newAccount,token})
     }catch (e) {
-        res.status(400).send(e)
-        console.log(e)
+        let errors = e.errors
+
+        if(errors == null){
+            //Account with that email exists
+            res.status(400).send("Account with that email exists")
+
+        }
+        else {
+            let errorCode = null;
+            for (var k in errors) {
+                errorCode = k;
+                break;
+            }
+            //Name must be between 2 and 25 symbols
+            if(errorCode == "name"){
+                res.status(400).send("Name must be between 2 and 25 symbols")
+            }
+            //Surname must be between 2 and 25 symbols
+            else if (errorCode == "surname"){
+                res.status(400).send("Surname must be between 2 and 25 symbols")
+            }
+            //Password can not be less than six digits long
+            else if (errorCode == "password"){
+                res.status(400).send("Password can not be less than six digits long")
+            }
+        }
+
     }
 }
 //Login user
