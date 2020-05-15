@@ -50,6 +50,14 @@ const register = async (req, res) => {
                 res.statusMessage = "Password can not be less than six digits long"
                 res.status(400).send("Password can not be less than six digits long")
             }
+            else if(errorCode == "email"){
+                res.statusMessage = "Email is in invalid format"
+                res.status(400).send("Email is in invalid format")
+            }
+            else {
+                console.log(e)
+                res.send(e)
+            }
         }
 
     }
