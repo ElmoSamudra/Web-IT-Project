@@ -413,7 +413,7 @@ const filterOne = async function (userID, pref) {
 
   // essential data needed for other user questionaire answer
   questionQueryObject.accountId = { $ne: userID };
-  questionQueryObject["filter1.numRoommeePref"] = userQ.filter1.numRoommeePref;
+  // questionQueryObject["filter1.numRoommeePref"] = userQ.filter1.numRoommeePref;
   questionQueryObject["filter1.ageDiffRange"] = user.age;
 
   // by default
