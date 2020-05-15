@@ -43,6 +43,8 @@ const updateUserQuestionaire = (req, res) => {
   const userID = req.account._id;
   // set the update object
   let updateQuestionaire = {};
+  console.log(req.body.ageFrom);
+  console.log(req.body.ageTo);
 
   // filter 1
   updateQuestionaire["filter1.sameNationalityPref"] =
