@@ -182,18 +182,38 @@ const clickMatch = async function (req, res) {
 const getUserMatch = async function (req, res) {
   const userID = req.account._id;
   let returnObj = {};
-  const data = await usersMatch.findOne({ accountId: userID });
-  const pending = await users.find({
-    accountId: { $in: data.yes.map((value) => mongoose.Types.ObjectId(value)) },
-  });
-  const reject = await users.find({
-    accountId: { $in: data.no.map((value) => mongoose.Types.ObjectId(value)) },
-  });
-  returnObj.userMatchData = data;
-  returnObj.pendingStatus = pending;
-  returnObj.rejectStatus = reject;
-  //res.render("matchStatus", { data: data, pending: pending, reject: reject });
-  res.send(returnObj);
+  try {
+    const data = await usersMatch.findOne({ accountId: userID });
+    const pending = await users.find({
+      accountId: {
+        $in: data.yes.map((value) => mongoose.Types.ObjectId(value)),
+      },
+    });
+    const reject = await users.find({
+      accountId: {
+        $in: data.no.map((value) => mongoose.Types.ObjectId(value)),
+      },
+    });
+    returnObj.userMatchData = data;
+    returnObj.pendingStatus = pending;
+    returnObj.rejectStatus = reject;
+    //res.render("matchStatus", { data: data, pending: pending, reject: reject });
+    res.send(returnObj);
+  }catch{
+    res.send([]);
+  }
+  // const data = await usersMatch.findOne({ accountId: userID });
+  // const pending = await users.find({
+  //   accountId: { $in: data.yes.map((value) => mongoose.Types.ObjectId(value)) },
+  // });
+  // const reject = await users.find({
+  //   accountId: { $in: data.no.map((value) => mongoose.Types.ObjectId(value)) },
+  // });
+  // returnObj.userMatchData = data;
+  // returnObj.pendingStatus = pending;
+  // returnObj.rejectStatus = reject;
+  // //res.render("matchStatus", { data: data, pending: pending, reject: reject });
+  // res.send(returnObj);
 };
 
 // update if there is a match for roommee
