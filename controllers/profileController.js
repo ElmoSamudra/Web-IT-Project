@@ -100,38 +100,39 @@ const newUserProfile = async (req, res) => {
 };
 
 const emptyProfile = async (req, res) => {
-  const findUser = await users.findOne({ accountId: req.account._id });
+  // const findUser = await users.findOne({ accountId: req.account._id });
 
-  if (findUser) {
-    return res.send(
-      "user profile has already been created, please update it instead"
-    );
-  }
+  // if (findUser) {
+  //   return res.send(
+  //     "user profile has already been created, please update it instead"
+  //   );
+  // }
 
-  const keys = Object.keys(req.body);
   let newUser = new users({});
-  // iterate for each class
-  keys.forEach((key) => {
-    if (key == "language" || key == "Hobby" || key == "preferStay") {
-      newUser[key] = [];
-    } else {
-      newUser[key] = req.body[key];
-    }
-  });
+  // const keys = Object.keys(newUser);
+  // // iterate for each class
+  // keys.forEach((key) => {
+  //   if (key == "language" || key == "Hobby" || key == "preferStay") {
+  //     newUser[key] = [];
+  //   } else {
+  //     newUser[key] = "";
+  //   }
+  // });
 
   newUser.accountId = req.account._id;
   newUser.firstName = req.account.name;
   newUser.surName = req.account.surname;
   newUser.roommee = "none";
   newUser.listProperty = false;
+  newUser.matchBuffer = [];
 
   // save the new user
-  newUser.save(function (err, userQ) {
+  newUser.save(function (err, user) {
     if (err) {
       console.error("err");
     } else {
-      console.log(userQ + " saved to User collection.");
-      res.send(userQ);
+      console.log(user + " saved to User collection.");
+      res.send(user);
       /*res.redirect("/profile/"+curID);*/
     }
   });
