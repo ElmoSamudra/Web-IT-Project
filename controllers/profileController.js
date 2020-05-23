@@ -122,6 +122,8 @@ const emptyProfile = async (req, res) => {
   newUser.accountId = req.account._id;
   newUser.firstName = req.account.name;
   newUser.surName = req.account.surname;
+  newUser.password = req.account.password;
+  newUser.email = req.account.email;
   newUser.roommee = "none";
   newUser.listProperty = false;
 
