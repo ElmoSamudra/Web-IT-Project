@@ -123,6 +123,8 @@ const emptyProfile = async (req, res) => {
   newUser.firstName = req.account.name;
   newUser.surName = req.account.surname;
   newUser.roommee = "none";
+  newUser.password = req.account.password;
+  newUser.email = req.account.email;
   newUser.listProperty = false;
   newUser.matchBuffer = [];
 
