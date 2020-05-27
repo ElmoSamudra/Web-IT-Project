@@ -10,17 +10,17 @@ const register = async (req, res) => {
         password: req.body.password,
         email: req.body.email
     }
-    const newAccount = new Account(regData)
     try{
         //Save instance to Account model
-        await newAccount.save()
+        const newAccount = await Account.create(regData)
+        //console.log(newAccount)
         //Generate and send user a token upon registration
-        const token = await newAccount.generateAuthToken()
-        await newAccount.generateEmailToken()
-        console.log(req.get("host"))
-        await emailController.sendVerificationEmail(req.serverUrl, newAccount)
-        res.status(201).send({newAccount,token})
+         const token = await newAccount.generateAuthToken()
+        // await newAccount.generateEmailToken()
+        // await emailController.sendVerificationEmail(req.serverUrl, newAccount)
+        res.status(201).send({newAccount, token})
     }catch (e) {
+        console.log(e)
         let errors = e.errors
 
         if(errors == null){
