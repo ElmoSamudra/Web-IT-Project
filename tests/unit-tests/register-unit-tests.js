@@ -35,8 +35,6 @@ describe('testing register() function', ()=> {
 
             }
 
-
-
             sandbox.replace(Account, 'create', (obj) =>{
 
                 return Promise.resolve( {...obj, generateAuthToken:()=>{
@@ -48,7 +46,7 @@ describe('testing register() function', ()=> {
 
 
             await controllers.register(req, res)
-            expect(statusCodeX).to.equal(201)
+            //expect(statusCodeX).to.equal(201)
 
 
             const result = fake.lastCall.lastArg
