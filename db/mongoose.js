@@ -10,5 +10,5 @@ mongoose.connect(mongoDbUri, {
 
 //Notify about sucesfull connection
 mongoose.connection.on('connected', () => {
-    console.log("!!!!!!!!!Mongoose was connected sucesfully")
+    console.log("!!!!!!!!!Mongoose was connected successfully")
 });

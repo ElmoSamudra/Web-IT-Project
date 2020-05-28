@@ -22,6 +22,10 @@ describe('testing updateMe() function', ()=> {
                 surname: "Jordan",
                 password: "123456789",
                 email:"jordanm777@gmail.com"
+            },
+            account: {
+                email: fake,
+                save: fake,
             }
         }
         let statusCodeX
@@ -46,10 +50,9 @@ describe('testing updateMe() function', ()=> {
 
 
         sandbox.replace(Account, 'create', (obj) =>{
-
             return Promise.resolve( {...obj
-            })
-        })
+            },)
+        },)
 
         await controllers.updateMe(req, res)
         const result = fake.lastCall.lastArg

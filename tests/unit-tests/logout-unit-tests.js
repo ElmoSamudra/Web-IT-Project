@@ -1,3 +1,6 @@
+//Needs consultation
+//How to go about line 95
+
 const sinon = require('sinon')
 const expect = require('chai').expect;
 
@@ -16,10 +19,9 @@ describe('testing logout() function', ()=> {
         const req = {
             token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI1ZWNlZGViY2VlMjMxMzI4MGNiZDY5MGMiLCJpYXQiOjE1OTA2MTU3NDB9.wG1ctXUfPETqbs5gh4DgUheQ9q6TAlqx5AvcYkFAjCM',
             account: {
-                tokens:["test1", "test2" ,"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI1ZWNlZGViY2VlMjMxMzI4MGNiZDY5MGMiLCJpYXQiOjE1OTA2MTU3NDB9.wG1ctXUfPETqbs5gh4DgUheQ9q6TAlqx5AvcYkFAjCM"]
-
+                tokens:["test1", "test2" ,"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI1ZWNlZGViY2VlMjMxMzI4MGNiZDY5MGMiLCJpYXQiOjE1OTA2MTU3NDB9.wG1ctXUfPETqbs5gh4DgUheQ9q6TAlqx5AvcYkFAjCM"],
+                save: fake
             }
-
         }
 
 
@@ -30,6 +32,7 @@ describe('testing logout() function', ()=> {
 
         let statusCodeX
         const res = {
+
             send: fake,
             status: (statusCode)=> {
                 statusCodeX = statusCode
@@ -41,13 +44,7 @@ describe('testing logout() function', ()=> {
 
         }
 
-        // sandbox.replace(Account, 'save', () =>{
-        //     return Promise.resolve( {saved:'true'
-        //     })
-        // })
-
         await controllers.logout(req, res)
-        const result = fake.lastCall.lastArg
         expect(req.account.tokens).to.have.lengthOf(2)
 
     })

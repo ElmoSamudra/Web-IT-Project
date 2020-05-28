@@ -13,11 +13,10 @@ const register = async (req, res) => {
     try{
         //Save instance to Account model
         const newAccount = await Account.create(regData)
-        //console.log(newAccount)
         //Generate and send user a token upon registration
-         const token = await newAccount.generateAuthToken()
-        // await newAccount.generateEmailToken()
-        // await emailController.sendVerificationEmail(req.serverUrl, newAccount)
+        const token = await newAccount.generateAuthToken()
+        const emailToken = await newAccount.generateEmailToken()
+        await emailController.sendVerificationEmail(req.serverUrl, newAccount)
         res.status(201).send({newAccount, token})
     }catch (e) {
         console.log(e)
@@ -85,7 +84,7 @@ const logout = async (req, res)=>{
 
 
         await req.account.save()
-        res.status(400).send("You were logged out")
+        res.status(200).send({success:"you were logged out"})
     }
     catch (e) {
         res.status(400).send(e.message.toString())
@@ -108,7 +107,6 @@ const getMyAccount = async (req,res) =>{
 const getAllAccounts = (req,res) =>{
 
     Account.find({}).then((accounts)=>{
-        console.log(accounts);
         res.send(accounts)
     }).catch((e)=>{
         res.status(500).send(e.message)
@@ -136,12 +134,13 @@ const updateMe = async (req, res) => {
         updates.forEach((update)=> {
             account[update] = req.body[update]})
         if (account.email != accountPreviousEmail){
-            await account.generateEmailToken()
+            const emailToken =  await account.generateEmailToken()
             await emailController.sendVerificationEmail(req.serverUrl, account)
         }
         await account.save()
         res.status(200).send(account)
     }catch (e) {
+        console.log(e)
         res.status(400).send(e.message)
     }
 }
@@ -151,9 +150,10 @@ const deleteMe = async (req, res) =>{
         await req.account.remove()
         res.send(req.account)
     }
-    catch{
-        res.status(500).send(e.message.toString())
-        console.log(e)    }
+    catch (e){
+        console.log(e)
+        res.status(500).send(e.message.toString())}
+
 }
 //Export of functions
 module.exports = {

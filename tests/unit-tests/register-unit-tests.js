@@ -3,6 +3,7 @@ const expect = require('chai').expect;
 
 const Account = require ('../../models/account')
 const controllers = require('../../controllers/accountController')
+const emailControllers = require('../../controllers/emailController')
 
 describe('testing register() function', ()=> {
     const sandbox = sinon.createSandbox()
@@ -13,13 +14,15 @@ describe('testing register() function', ()=> {
 
         it('test with correct arguments ->register() should return account and token', async () =>  {
             const fake = sinon.fake()
+            const fakeEmail = sinon.spy()
             const req = {
                 body: {
                     name:"Michael",
                     surname: "Jordan",
                     password: "123456789",
                     email:"jordanm@gmail.com"
-                }
+                },
+                serverUrl: "roomie.com"
             }
             let statusCodeX
 
@@ -39,25 +42,17 @@ describe('testing register() function', ()=> {
 
                 return Promise.resolve( {...obj, generateAuthToken:()=>{
                     return Promise.resolve({token:"a"})
+                    }, generateEmailToken:()=>{
+                        return Promise.resolve({emailToken: "a"})
                     }})
             })
 
-
-
+            sandbox.replace(emailControllers, 'sendVerificationEmail', fakeEmail)
 
             await controllers.register(req, res)
-            //expect(statusCodeX).to.equal(201)
-
-
             const result = fake.lastCall.lastArg
-
-            console.log("***********************&&&&&^^^^^^^")
-            console.log(result)
             expect(result).to.have.property("newAccount")
-            expect(result.token).to.deep.equal({token:"a"})
-
-
-
-
+            console.log(fakeEmail.args[0])
+            expect(fakeEmail.args[0][0]).to.equal("roomie.com")
         })
     })

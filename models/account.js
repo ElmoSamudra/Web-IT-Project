@@ -120,6 +120,7 @@ userSchema.methods.generateEmailToken = async function (){
     const token = jwt.sign({ _id: account._id.toString()}, "thisIsEmailSecret")
     account.emailVerificationToken = token
     await account.save()
+    return token
 }
 
 //Check whether login and hashed password match to ones stored in the database

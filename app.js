@@ -56,3 +56,5 @@ app.use("/utils-management", utilsRouter);
 server.listen(process.env.PORT || 3000, () => {
     console.log("The flatmate app is running!");
 })
+
+module.exports = app;
