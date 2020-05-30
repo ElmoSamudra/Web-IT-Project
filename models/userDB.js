@@ -13,20 +13,35 @@ var userSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.String,
     ref: "Account",
   },
-  password: {
-    type: mongoose.Schema.Types.String,
-    ref: "Account",
+  age: {
+    type: Number,
+    required: true,
   },
-  email: {
-    type: mongoose.Schema.Types.String,
-    ref: "Account",
+  gender: {
+    type: String,
+    required: true,
   },
-  age: Number,
-  gender: String,
-  nationality: String,
-  hobby: [String],
-  language: [String],
-  preferStay: [String],
+  nationality: {
+    type: String,
+    required: true,
+    // masi gk bisa ini, gk tau knp
+    validate(value) {
+      if (!/^[a-z]+$/i.test(value)) {
+        throw new Error("nationality " + alphabetError);
+      }
+    },
+  },
+  hobby: {
+    type: [String],
+  },
+  language: {
+    type: [String],
+    required: true,
+  },
+  preferStay: {
+    type: [String],
+    required: true,
+  },
   roommee: String,
   listProperty: Boolean,
   matchBuffer: [String],
