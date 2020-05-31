@@ -10,18 +10,50 @@ const register = async (req, res) => {
     password: req.body.password,
     email: req.body.email,
   };
-  const newAccount = new Account(regData);
   try {
     //Save instance to Account model
-    await newAccount.save();
+    const newAccount = await Account.create(regData);
     //Generate and send user a token upon registration
     const token = await newAccount.generateAuthToken();
-    await newAccount.generateEmailToken();
-    console.log(req.get("host"));
+    const emailToken = await newAccount.generateEmailToken();
     await emailController.sendVerificationEmail(req.serverUrl, newAccount);
     res.status(201).send({ newAccount, token });
   } catch (e) {
+    console.log(e);
     let errors = e.errors;
+
+    if (errors == null) {
+      //Account with that email exists
+      res.statusMessage = "Account with that email exists";
+      res.status(400).send("Account with that email exists");
+    } else {
+      let errorCode = null;
+      for (var k in errors) {
+        errorCode = k;
+        break;
+      }
+      //Name must be between 2 and 25 symbols
+      if (errorCode == "name") {
+        res.statusMessage = "Name must be between 2 and 25 symbols";
+        res.status(400).send("Name must be between 2 and 25 symbols");
+      }
+      //Surname must be between 2 and 25 symbols
+      else if (errorCode == "surname") {
+        res.statusMessage = "Surname must be between 2 and 25 symbols";
+        res.status(400).send("Surname must be between 2 and 25 symbols");
+      }
+      //Password can not be less than six digits long
+      else if (errorCode == "password") {
+        res.statusMessage = "Password can not be less than six digits long";
+        res.status(400).send("Password can not be less than six digits long");
+      } else if (errorCode == "email") {
+        res.statusMessage = "Email is in invalid format";
+        res.status(400).send("Email is in invalid format");
+      } else {
+        console.log(e);
+        res.send(e);
+      }
+    }
 
     if (errors == null) {
       //Account with that email exists
@@ -82,7 +114,7 @@ const logout = async (req, res) => {
     });
 
     await req.account.save();
-    res.status(400).send("You were logged out");
+    res.status(200).send({ success: "you were logged out" });
   } catch (e) {
     res.status(400).send(e.message.toString());
     console.log(e);
@@ -102,8 +134,11 @@ const getMyAccount = async (req, res) => {
 const getAllAccounts = (req, res) => {
   Account.find({})
     .then((accounts) => {
-      console.log(accounts);
       res.send(accounts);
+    })
+    .catch((e) => {
+      res.status(500).send(e.message);
+      console.log(e);
     })
     .catch((e) => {
       res.status(500).send(e.message);
@@ -114,7 +149,6 @@ const getAllAccounts = (req, res) => {
 //Update fields of account
 const updateMe = async (req, res) => {
   const updates = Object.keys(req.body);
-  console.log(updates);
   //Allowed fields to update, other fields can not be updated by user
   const allowedUpdates = ["name", "surname", "email", "password"];
   const isValidOperation = updates.every((update) => {
@@ -130,28 +164,30 @@ const updateMe = async (req, res) => {
     let accountPreviousEmail = account.email;
     //Iterate through keys:values in account and update by corresponding values
     updates.forEach((update) => {
-      console.log(req.body[update]);
       account[update] = req.body[update];
     });
     if (account.email != accountPreviousEmail) {
-      await account.generateEmailToken();
+      const emailToken = await account.generateEmailToken();
       await emailController.sendVerificationEmail(req.serverUrl, account);
     }
-    console.log(account);
     await account.save();
     res.status(200).send(account);
   } catch (e) {
+    console.log(e);
     res.status(400).send(e.message);
   }
+  // console.log(account);
+  // await account.save();
+  // res.status(200).send(account);
 };
 //Delete one account
 const deleteMe = async (req, res) => {
   try {
     await req.account.remove();
     res.send(req.account);
-  } catch {
-    res.status(500).send(e.message.toString());
+  } catch (e) {
     console.log(e);
+    res.status(500).send(e.message.toString());
   }
 };
 //Export of functions
