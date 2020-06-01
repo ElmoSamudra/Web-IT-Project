@@ -46,10 +46,10 @@ chatRouter.get("/", auth, (req, res) => {
 });
 
 // connecting to room(changing ejs)
-function ioInitialise(io) {
+async function ioInitialise(io) {
   io.on("connection", (socket) => {
     console.log("connected");
-    socket.on("join", ({ name, room }, callback) => {
+    socket.on("join", async ({ name, room }, callback) => {
       const { error, user } = addUser({ id: socket.id, name, room });
 
       if (error) return callback(error);
@@ -65,6 +65,13 @@ function ioInitialise(io) {
           text: `${user.name} joined the chat`,
         });
       socket.join(user.room);
+
+      let chatroomDB = await Chatroom.findOne({ name: room })
+
+      if (chatroomDB.users.indexOf(user.name) === -1){
+        console.log("user joined" + room)
+        await Chatroom.updateOne({ name:room }, {$push:{users: user.name}})
+      }
 
       callback();
     });
@@ -84,9 +91,17 @@ function ioInitialise(io) {
     //   }
     // })
 
-    socket.on("sendMessage", (message, callback) => {
+    socket.on("sendMessage", async (message, callback) => {
       const user = getUser(socket.id);
       io.to(user.room).emit("message", { user: user.name, text: message });
+
+      let chatroomDB = await Chatroom.findOne({ name: user.room })
+
+      await Chatroom.updateOne(
+        { name: user.room },
+        {$push:{ messages:{ from: user.name, body: message}
+        }}
+      )
 
       callback();
       // socket.to(room).broadcast.emit('chat-message', { message: message, name: rooms[room].users[socket.id] })
