@@ -1,4 +1,8 @@
 var users = require("../models/userDB");
+// var sanitizerPlugin = require("mongoose-sanitizer");
+var sanitize = require("mongo-sanitize");
+var validator = require("validator");
+// users.plugin(sanitizerPlugin);
 
 // this function is created to show the current user profile
 const getUserProfile = (req, res) => {
@@ -6,7 +10,7 @@ const getUserProfile = (req, res) => {
   users.findOne({ accountId: req.account._id }, function (err, userProf) {
     if (err) {
       console.log(err);
-      res.send("Error");
+      res.status(400).send("Error");
     } else {
       if (userProf) {
         console.log("Get the userprofile");
@@ -33,31 +37,55 @@ const updateRedirect = (req, res) => {
 };
 
 // update the user profile
-const updateUserProfile = (req, res) => {
+const updateUserProfile = async (req, res) => {
   const userID = req.account._id;
   const keys = Object.keys(req.body);
   let updateProf = {};
-  // iterate over all of the keys
-  keys.forEach((key) => {
-    if (key == "language" || key == "Hobby" || key == "preferStay") {
-      updateProf[key] = req.body[key].split(",");
-    } else {
-      updateProf[key] = req.body[key];
-    }
-  });
-  users.updateOne({ accountId: userID }, { $set: updateProf }, function (
-    err,
-    user
-  ) {
-    if (err) {
-      console.log(err);
-      res.send("Error");
-    } else {
-      console.log("update " + userID + " profile");
-      res.send("User updated");
-      /* res.redirect("/profile/"+userID)*/
-    }
-  });
+  const intDetect = "Integer detected in string inputs";
+  console.log("update");
+
+  try {
+    // iterate over all of the keys
+    keys.forEach((key) => {
+      if (key == "language" || key == "Hobby" || key == "preferStay") {
+        if (validator.isAlpha(req.body[key])) {
+          updateProf[key] = req.body[key].split(",");
+        } else {
+          console.log(intDetect);
+          throw new Error(intDetect);
+        }
+      } else {
+        if (key !== "age") {
+          if (validator.isAlpha(req.body[key])) {
+            updateProf[key] = req.body[key];
+          } else {
+            console.log(intDetect);
+            throw new Error(intDetect);
+          }
+        } else {
+          updateProf[key] = req.body[key];
+        }
+      }
+    });
+    await users.updateOne({ accountId: userID }, { $set: updateProf });
+    //  , function (
+    //     err,
+    //     user
+    //   ) {
+    //     if (err) {
+    //       console.log(err);
+    //       res.status(400).send("Error");
+    //     } else {
+    //       console.log("update " + userID + " profile");
+    //       res.send("User updated");
+    //       /* res.redirect("/profile/"+userID)*/
+    //     }
+    //   });
+    console.log("updated user profile");
+    return res.status(200).send("updated");
+  } catch (e) {
+    return res.status(400).send("invalid input");
+  }
 };
 
 // this function is created to update and fill the new user profile
@@ -100,31 +128,14 @@ const newUserProfile = async (req, res) => {
 };
 
 const emptyProfile = async (req, res) => {
-  // const findUser = await users.findOne({ accountId: req.account._id });
-
-  // if (findUser) {
-  //   return res.send(
-  //     "user profile has already been created, please update it instead"
-  //   );
-  // }
-
   let newUser = new users({});
-  // const keys = Object.keys(newUser);
-  // // iterate for each class
-  // keys.forEach((key) => {
-  //   if (key == "language" || key == "Hobby" || key == "preferStay") {
-  //     newUser[key] = [];
-  //   } else {
-  //     newUser[key] = "";
-  //   }
-  // });
 
   newUser.accountId = req.account._id;
   newUser.firstName = req.account.name;
   newUser.surName = req.account.surname;
   newUser.roommee = "none";
-  newUser.password = req.account.password;
-  newUser.email = req.account.email;
+  // newUser.password = req.account.password;
+  // newUser.email = req.account.email;
   newUser.listProperty = false;
   newUser.matchBuffer = [];
 
@@ -139,6 +150,37 @@ const emptyProfile = async (req, res) => {
     }
   });
 };
+
+// const validateEmail = async (req, res) => {
+//   try {
+//     const input = req.body.emailInput;
+//     const userProf = await users.findOne({ accountId: req.account._id });
+//     const userEmail = userProf.email;
+//     if (userEmail == input) {
+//       res.send(true);
+//     } else {
+//       res.send(false);
+//     }
+//   } catch (e) {
+//     console.log(e);
+//     res.status(400);
+//     res.send(e);
+//   }
+// };
+
+// const updateEmail = async (req, res) => {
+//   try {
+//     const newEmail = req.body.email;
+//     console.log(newEmail);
+//     const user = users.findOne({ accountId: req.account._id });
+//     user.email = newEmail;
+//     await users.updateOne({ accountId: req.account._id }, { $set: user });
+//   } catch (e) {
+//     console.log(e);
+//     res.status(400);
+//     res.send("update fail");
+//   }
+// };
 
 module.exports = {
   getUserProfile,

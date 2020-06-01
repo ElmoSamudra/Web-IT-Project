@@ -5,6 +5,7 @@ var users = require("../models/userDB.js");
 var usersAns = require("../models/userQDB.js");
 var usersMatch = require("../models/matchDB.js");
 var usersLease = require("../models/leaseDB.js");
+var chats = require("../models/chatDB.js");
 
 // -------------------------------Match Algorithm--------------------------------
 
@@ -120,61 +121,76 @@ const clickMatch = async function (req, res) {
     });
 
     // loop each match id
-    matchIDs.forEach((key) => {
+    matchIDs.forEach(async (key) => {
       if (ans === "yes") {
         newUserMatch.yes.push(key.toString());
-        checkMatch(userID, key, ans);
+        await checkMatch(userID, key, ans);
       } else {
         newUserMatch.no.push(key.toString());
       }
     });
     // update the answer
-    newUserMatch.save(function (err, userMatch) {
-      if (err) {
-        console.error("err");
-      } else {
-        console.log(userMatch);
-        console.log("New user saved to Match collection.");
-      }
-    });
+    await newUserMatch.save();
+    console.log(newUserMatch);
+    console.log("New user saved to Match collection.");
     // old user
   } else {
     // loop through each match id
-    matchIDs.forEach((key) => {
+    matchIDs.forEach(async (key) => {
+      console.log("masuk for each");
       if (ans === "yes") {
         // no duplicate
+        console.log("masuk yes");
         if (userMatch.yes.indexOf(key.toString()) === -1) {
-          userMatch.yes.push(key.toString());
-          checkMatch(userID, key.toString(), ans);
+          console.log("masuk yes 2");
+          try {
+            await usersMatch.updateOne(
+              { accountId: userID },
+              { $push: { yes: key.toString() } }
+            );
+            console.log("finish update yes");
+            console.log(userMatch);
+          } catch (e) {
+            console.log(e);
+            console.log("failed to update yes ");
+          }
+
+          // userMatch.yes.push(key.toString());
+          await checkMatch(userID, key.toString(), ans);
           // should not be in the no if there is in the yes list
           if (userMatch.no.indexOf(key.toString()) !== -1) {
-            userMatch.no.splice(userMatch.no.indexOf(key.toString()), 1);
+            await usersMatch.updateOne(
+              { accountId: userID },
+              { $pull: { no: key.toString() } }
+            );
+            // userMatch.no.splice(userMatch.no.indexOf(key.toString()), 1);
           }
         }
       } else {
+        console.log("enter masuk duplicate");
         if (userMatch.no.indexOf(key.toString()) === -1) {
-          userMatch.no.push(key.toString());
+          await usersMatch.updateOne(
+            { accountId: userID },
+            { $push: { no: key.toString() } }
+          );
+          // userMatch.no.push(key.toString());
           if (userMatch.yes.indexOf(key.toString()) !== -1) {
-            userMatch.yes.splice(userMatch.yes.indexOf(key.toString()), 1);
-            checkMatch(userID, key.toString(), ans);
+            await usersMatch.updateOne(
+              { accountId: userID },
+              { $pull: { yes: key.toString() } }
+            );
+            // userMatch.yes.splice(userMatch.yes.indexOf(key.toString()), 1);
+            await checkMatch(userID, key.toString(), ans);
             // harus update chat nya ilang semua klo ada juga
           }
         }
       }
     });
-    console.log(userMatch);
+
     // update the database
-    userMatch.save(function (err, data) {
-      console.log("jfnjfdnd");
-      if (err) {
-        console.log(err);
-        res.status(400);
-        res.send("failed update match");
-      } else {
-        console.log("user updated");
-        res.send("user updated");
-      }
-    });
+    // await userMatch.save();
+
+    console.log("user updates are saved to Match collection.");
   }
 };
 
@@ -199,7 +215,7 @@ const getUserMatch = async function (req, res) {
     returnObj.rejectStatus = reject;
     //res.render("matchStatus", { data: data, pending: pending, reject: reject });
     res.send(returnObj);
-  }catch{
+  } catch {
     res.send([]);
   }
   // const data = await usersMatch.findOne({ accountId: userID });
@@ -381,6 +397,12 @@ const getMyRoommee = async (req, res) => {
 // check if there is a chat match
 const checkMatch = async function (userID, matchID, ans) {
   console.log("enter");
+  // if(ans==='yes'){
+  //   await usersMatch.updateOne({'accountId':userID}, {$push:{yes:matchID}});
+  // }else{
+  //   await usersMatch.updateOne({'accountId':userID}, {$pull:{yes:matchID}});
+  // }
+
   const matchRes = await usersMatch.findOne({
     accountId: mongoose.Types.ObjectId(matchID),
     yes: { $in: userID.toString() },
@@ -389,6 +411,9 @@ const checkMatch = async function (userID, matchID, ans) {
   if (matchRes) {
     if (matchRes.chat.indexOf(userID) === -1) {
       if (ans === "yes") {
+        console.log("harusnya update");
+        // CREATE the chat room here
+        await addRoom(userID, matchID);
         await usersMatch.updateOne(
           { accountId: mongoose.Types.ObjectId(matchID) },
           { $push: { chat: userID.toString() } }
@@ -400,6 +425,9 @@ const checkMatch = async function (userID, matchID, ans) {
       }
     } else {
       if (ans === "no") {
+        // DELETE the chat room here
+
+        await removeRoom(userID, matchID);
         await usersMatch.updateOne(
           { accountId: mongoose.Types.ObjectId(matchID) },
           { $pull: { chat: userID.toString() } }
@@ -556,6 +584,79 @@ function euclidean(user1, user2, sortOption) {
     return Math.sqrt(distance);
   }
 }
+
+// these functions are for chat room manipulation
+const addRoom = async (userIDOne, userIDTwo) => {
+  console.log("create room");
+  const newChat = new chats({});
+  const roomName = userIDOne.toString() + userIDTwo.toString();
+
+  // set the name for the room
+  newChat.name = roomName;
+
+  let userOneNewChat = {};
+  let userTwoNewChat = {};
+
+  // set the object first for update
+  userOneNewChat.roomName = roomName;
+  userOneNewChat.listUsers = [userIDTwo];
+  userTwoNewChat.roomName = roomName;
+  userTwoNewChat.listUsers = [userIDOne];
+
+  try {
+    await users.updateOne(
+      { accountId: userIDOne },
+      { $push: { roomList: userOneNewChat } }
+    );
+    await users.updateOne(
+      { accountId: userIDTwo },
+      { $push: { roomList: userTwoNewChat } }
+    );
+    await newChat.save();
+  } catch (e) {
+    console.log(e);
+    console.log("failed update and create room ");
+  }
+};
+
+const removeRoom = async (userIDOne, userIDTwo) => {
+  // try to find the room name first
+  const userProf = await users.findOne({ accountId: userIDOne });
+  // const tryNameOne = userIDOne.toString() + userIDTwo.toString();
+  // const tryNameTwo = userIDTwo.toString() + userIDOne.toString();
+  const listOfRooms = userProf.roomList;
+  var deleteUserOneRoom = {};
+  var deleteUserTwoRoom = {};
+  let deleteRoom = "";
+
+  listOfRooms.forEach((room) => {
+    if (room.listUsers.indexOf(userIDTwo.toString()) !== -1) {
+      deleteRoom = room.roomName;
+      deleteUserOneRoom.roomName = room.roomName;
+      deleteUserOneRoom.listUsers = [userIDTwo];
+      deleteUserTwoRoom.roomName = room.roomName;
+      deleteUserTwoRoom.listUsers = [userIDOne];
+    }
+  });
+
+  console.log(deleteRoom);
+  if (deleteRoom !== "") {
+    try {
+      await chats.deleteOne({ name: deleteRoom });
+      await users.updateOne(
+        { accountId: userIDOne },
+        { $pull: { roomList: deleteUserOneRoom } }
+      );
+      await users.updateOne(
+        { accountId: userIDTwo },
+        { $pull: { roomList: deleteUserTwoRoom } }
+      );
+    } catch (e) {
+      console.log(e);
+      console.log("failed to delete room and update the user room list");
+    }
+  }
+};
 
 module.exports = {
   runMatchAlgo,
