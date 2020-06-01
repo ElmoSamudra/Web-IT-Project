@@ -44,7 +44,6 @@ chatRouter.get('/', auth, (req, res) =>{
   res.send('chat here').status(200)
  })
 
-
 // connecting to room(changing ejs)
 function ioInitialise(io){
   io.on('connection', socket => {
