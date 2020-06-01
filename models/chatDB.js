@@ -2,8 +2,8 @@ var mongoose = require("mongoose");
 
 var chatroomSchema = new mongoose.Schema({
     
-    roomId: { type: String, lowercase: true, unique: true },
-    users: [ Object ],
+    name: { type: String, lowercase: true, unique: true },
+    users: [ String ],
     messages: [{ 
         from: String, 
         body: String, 
