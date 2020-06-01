@@ -589,6 +589,8 @@ function euclidean(user1, user2, sortOption) {
 const addRoom = async (userIDOne, userIDTwo) => {
   console.log("create room");
   const newChat = new chats({});
+  const userOne = await users.findOne({ accountId: userIDOne });
+  const userTwo = await users.findOne({ accountId: userIDTwo });
   const roomName = userIDOne.toString() + userIDTwo.toString();
 
   // set the name for the room
@@ -600,8 +602,11 @@ const addRoom = async (userIDOne, userIDTwo) => {
   // set the object first for update
   userOneNewChat.roomName = roomName;
   userOneNewChat.listUsers = [userIDTwo];
+  userOneNewChat.nameUsers = [userTwo.firstName];
+
   userTwoNewChat.roomName = roomName;
   userTwoNewChat.listUsers = [userIDOne];
+  userTwoNewChat.nameUsers = [userOne.firstName];
 
   try {
     await users.updateOne(
@@ -612,6 +617,7 @@ const addRoom = async (userIDOne, userIDTwo) => {
       { accountId: userIDTwo },
       { $push: { roomList: userTwoNewChat } }
     );
+    console.log(newChat);
     await newChat.save();
   } catch (e) {
     console.log(e);
@@ -622,6 +628,8 @@ const addRoom = async (userIDOne, userIDTwo) => {
 const removeRoom = async (userIDOne, userIDTwo) => {
   // try to find the room name first
   const userProf = await users.findOne({ accountId: userIDOne });
+  const userOne = await users.findOne({ accountId: userIDOne });
+  const userTwo = await users.findOne({ accountId: userIDTwo });
   // const tryNameOne = userIDOne.toString() + userIDTwo.toString();
   // const tryNameTwo = userIDTwo.toString() + userIDOne.toString();
   const listOfRooms = userProf.roomList;
@@ -634,8 +642,10 @@ const removeRoom = async (userIDOne, userIDTwo) => {
       deleteRoom = room.roomName;
       deleteUserOneRoom.roomName = room.roomName;
       deleteUserOneRoom.listUsers = [userIDTwo];
+      deleteUserOneRoom.nameUsers = [userTwo.firstName];
       deleteUserTwoRoom.roomName = room.roomName;
       deleteUserTwoRoom.listUsers = [userIDOne];
+      deleteUserTwoRoom.nameUsers = [userOne.firstName];
     }
   });
 

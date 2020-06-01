@@ -47,7 +47,9 @@ var userSchema = new mongoose.Schema({
     required: true,
   },
   roomList: {
-    type: [{ roomName: { type: String, unique: true }, listUsers: [String] }],
+    type: [
+      { roomName: { type: String }, listUsers: [String], nameUsers: [String] },
+    ],
     unique: true,
   },
   roommee: String,
