@@ -9,7 +9,7 @@ sgMail.setApiKey(sendgridApiKey);
 
 // get the utility database too
 
-// function to get lease informations from databases
+// function to get lease information from databases
 const getLease = async (req, res) => {
     try {
         const currentUserId = req.account._id;

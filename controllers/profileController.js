@@ -1,6 +1,5 @@
 var users = require("../models/userDB");
 // var sanitizerPlugin = require("mongoose-sanitizer");
-var sanitize = require("mongo-sanitize");
 var validator = require("validator");
 // users.plugin(sanitizerPlugin);
 
