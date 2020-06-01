@@ -4,7 +4,7 @@
   "description": "finding roommate app for assignment in INFO30005",
   "main": "app.js",
   "scripts": {
-    "test": "mocha tests/**/*.js --exit",
+    "test": "mocha tests/**/*.js --exit --timeout 20000",
     "start": "node app.js"
   },
   "author": "Eldar Kurmakaev",

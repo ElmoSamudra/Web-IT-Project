@@ -52,7 +52,6 @@ describe('testing register() function', ()=> {
             await controllers.register(req, res)
             const result = fake.lastCall.lastArg
             expect(result).to.have.property("newAccount")
-            console.log(fakeEmail.args[0])
             expect(fakeEmail.args[0][0]).to.equal("roomie.com")
         })
     })
