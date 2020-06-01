@@ -17,7 +17,7 @@ describe("register() integration test", ()=>{
     })
 
     it("register() function with correct arguments ->" +
-        "should return token and newAccount information", async (done)=>{
+        "should return token and newAccount information", async ()=>{
             const res = await supertest(app).post('/account-management/registerAccount').send(
                 {
                     name:"Michael",

@@ -14,6 +14,7 @@ describe('testing updateMe() function', ()=> {
         }
     )
 
+
     it('test with correct arguments ->updateMe() should return new account information', async () =>  {
         const fake = sinon.fake()
         const req = {
@@ -26,6 +27,7 @@ describe('testing updateMe() function', ()=> {
             account: {
                 email: fake,
                 save: fake,
+                generateEmailToken: fake
             }
         }
         let statusCodeX
@@ -51,8 +53,8 @@ describe('testing updateMe() function', ()=> {
 
         sandbox.replace(Account, 'create', (obj) =>{
             return Promise.resolve( {...obj
-            },)
-        },)
+            })
+        })
 
         await controllers.updateMe(req, res)
         const result = fake.lastCall.lastArg

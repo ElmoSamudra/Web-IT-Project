@@ -1,7 +1,7 @@
 var Account = require("../models/account");
 var emailController = require("./emailController");
 
-//Registration of user
+//Registration of user schema. Keeps basic information about user and valid authentication tokens.
 const register = async (req, res) => {
   //New instance of account in Account model
   let regData = {
