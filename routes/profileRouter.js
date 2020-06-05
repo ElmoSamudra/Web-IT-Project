@@ -19,21 +19,16 @@ profileRouter.post("/new", auth, (req, res) => {
 profileRouter.get("/", auth, (req, res) => {
   profileController.getUserProfile(req, res);
 });
-// fill the update for user profile
-profileRouter.get("/update", auth, (req, res) => {
-  profileController.updateRedirect(req, res);
-});
 // update the user profile
 profileRouter.post("/update", auth, (req, res) => {
   profileController.updateUserProfile(req, res);
 });
-// // validate email for password change
-// profileRouter.post("/change-cred", auth, (req, res) => {
-//   profileController.validateEmail(req, res);
-// });
 
-// profileRouter.post("/change-email", auth, (req, res) => {
-//   profileController.updateEmail(req, res);
-// });
+// ---------------------- NOT USED ANYMORE -----------------------------
+
+// fill the update for user profile
+profileRouter.get("/update", auth, (req, res) => {
+  profileController.updateRedirect(req, res);
+});
 
 module.exports = profileRouter;

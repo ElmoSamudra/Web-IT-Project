@@ -86,6 +86,8 @@ const runMatchAlgo = async (req, res) => {
 };
 
 // for customizing the preference (optional, both first and second filter)
+// the api for this preference will not be used anymore
+// however, since the guard has been made for default value in the pref, we decided not to delete this
 const customisePref = async (req, res) => {
   let prefObj = {};
   const prefKeys = Object.keys(req.body);
@@ -99,15 +101,11 @@ const customisePref = async (req, res) => {
 
 // check for the match status here
 const clickMatch = async function (req, res) {
-  console.log("masuk controller");
   const userID = req.account._id;
-  console.log(req.body);
   const matchIDs = [req.body["id"]];
-  console.log(matchIDs);
   const ans = req.body["ans"];
 
   const userMatch = await usersMatch.findOne({ accountId: userID });
-  console.log(userMatch);
 
   // new userMatch, create first
   if (userMatch === null) {
@@ -131,25 +129,20 @@ const clickMatch = async function (req, res) {
     });
     // update the answer
     await newUserMatch.save();
-    console.log(newUserMatch);
     console.log("New user saved to Match collection.");
     // old user
   } else {
     // loop through each match id
     matchIDs.forEach(async (key) => {
-      console.log("masuk for each");
       if (ans === "yes") {
         // no duplicate
-        console.log("masuk yes");
         if (userMatch.yes.indexOf(key.toString()) === -1) {
-          console.log("masuk yes 2");
           try {
             await usersMatch.updateOne(
               { accountId: userID },
               { $push: { yes: key.toString() } }
             );
             console.log("finish update yes");
-            console.log(userMatch);
           } catch (e) {
             console.log(e);
             console.log("failed to update yes ");
@@ -167,7 +160,6 @@ const clickMatch = async function (req, res) {
           }
         }
       } else {
-        console.log("enter masuk duplicate");
         if (userMatch.no.indexOf(key.toString()) === -1) {
           await usersMatch.updateOne(
             { accountId: userID },
@@ -213,23 +205,10 @@ const getUserMatch = async function (req, res) {
     returnObj.userMatchData = data;
     returnObj.pendingStatus = pending;
     returnObj.rejectStatus = reject;
-    //res.render("matchStatus", { data: data, pending: pending, reject: reject });
     res.send(returnObj);
   } catch {
     res.send([]);
   }
-  // const data = await usersMatch.findOne({ accountId: userID });
-  // const pending = await users.find({
-  //   accountId: { $in: data.yes.map((value) => mongoose.Types.ObjectId(value)) },
-  // });
-  // const reject = await users.find({
-  //   accountId: { $in: data.no.map((value) => mongoose.Types.ObjectId(value)) },
-  // });
-  // returnObj.userMatchData = data;
-  // returnObj.pendingStatus = pending;
-  // returnObj.rejectStatus = reject;
-  // //res.render("matchStatus", { data: data, pending: pending, reject: reject });
-  // res.send(returnObj);
 };
 
 // update if there is a match for roommee
@@ -396,13 +375,6 @@ const getMyRoommee = async (req, res) => {
 
 // check if there is a chat match
 const checkMatch = async function (userID, matchID, ans) {
-  console.log("enter");
-  // if(ans==='yes'){
-  //   await usersMatch.updateOne({'accountId':userID}, {$push:{yes:matchID}});
-  // }else{
-  //   await usersMatch.updateOne({'accountId':userID}, {$pull:{yes:matchID}});
-  // }
-
   const matchRes = await usersMatch.findOne({
     accountId: mongoose.Types.ObjectId(matchID),
     yes: { $in: userID.toString() },
@@ -411,7 +383,6 @@ const checkMatch = async function (userID, matchID, ans) {
   if (matchRes) {
     if (matchRes.chat.indexOf(userID) === -1) {
       if (ans === "yes") {
-        console.log("harusnya update");
         // CREATE the chat room here
         await addRoom(userID, matchID);
         await usersMatch.updateOne(
@@ -445,7 +416,6 @@ const checkMatch = async function (userID, matchID, ans) {
 const filterOne = async function (userID, pref) {
   // query the user profile and questionaire
   const user = await users.findOne({ accountId: userID });
-  console.log(user);
   const userQ = await usersAns.findOne({ accountId: userID });
 
   // set the query object
@@ -625,13 +595,13 @@ const addRoom = async (userIDOne, userIDTwo) => {
   }
 };
 
+// Delete the room if the user decided to end their match status
 const removeRoom = async (userIDOne, userIDTwo) => {
   // try to find the room name first
   const userProf = await users.findOne({ accountId: userIDOne });
   const userOne = await users.findOne({ accountId: userIDOne });
   const userTwo = await users.findOne({ accountId: userIDTwo });
-  // const tryNameOne = userIDOne.toString() + userIDTwo.toString();
-  // const tryNameTwo = userIDTwo.toString() + userIDOne.toString();
+
   const listOfRooms = userProf.roomList;
   var deleteUserOneRoom = {};
   var deleteUserTwoRoom = {};
@@ -649,7 +619,6 @@ const removeRoom = async (userIDOne, userIDTwo) => {
     }
   });
 
-  console.log(deleteRoom);
   if (deleteRoom !== "") {
     try {
       await chats.deleteOne({ name: deleteRoom });

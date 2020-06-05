@@ -38,11 +38,21 @@ const removeUser = (id) => {
 
 const getUser = (id) => users.find((user) => user.id === id);
 
-const getUsersInRoom = (room) => users.filter((user) => user.room === room);
-
 // redirecting
 chatRouter.get("/", auth, (req, res) => {
   res.send("chat here").status(200);
+});
+
+// get the chat history of the user based on the roomname
+chatRouter.post("/history", auth, async (req, res) => {
+  const roomName = req.body.room;
+  try {
+    const chatHisto = await Chatroom.findOne({ name: roomName });
+    res.send(chatHisto);
+  } catch (e) {
+    console.log(e);
+    res.status(400).send(e);
+  }
 });
 
 // connecting to room(changing ejs)
@@ -58,19 +68,20 @@ async function ioInitialise(io) {
         user: "admin",
         text: `${user.name} welcome to the chat`,
       });
-      socket.broadcast
-        .to(user.room)
-        .emit("message", {
-          user: "admin",
-          text: `${user.name} joined the chat`,
-        });
+      socket.broadcast.to(user.room).emit("message", {
+        user: "admin",
+        text: `${user.name} joined the chat`,
+      });
       socket.join(user.room);
 
-      let chatroomDB = await Chatroom.findOne({ name: room })
+      let chatroomDB = await Chatroom.findOne({ name: room });
 
-      if (chatroomDB.users.indexOf(user.name) === -1){
-        console.log("user joined" + room)
-        await Chatroom.updateOne({ name:room }, {$push:{users: user.name}})
+      if (chatroomDB.users.indexOf(user.name) === -1) {
+        console.log("user joined" + room);
+        await Chatroom.updateOne(
+          { name: room },
+          { $push: { users: user.name } }
+        );
       }
 
       callback();
@@ -95,13 +106,12 @@ async function ioInitialise(io) {
       const user = getUser(socket.id);
       io.to(user.room).emit("message", { user: user.name, text: message });
 
-      let chatroomDB = await Chatroom.findOne({ name: user.room })
+      let chatroomDB = await Chatroom.findOne({ name: user.room });
 
       await Chatroom.updateOne(
         { name: user.room },
-        {$push:{ messages:{ from: user.name, body: message}
-        }}
-      )
+        { $push: { messages: { from: user.name, body: message } } }
+      );
 
       callback();
       // socket.to(room).broadcast.emit('chat-message', { message: message, name: rooms[room].users[socket.id] })
