@@ -565,6 +565,7 @@ const addRoom = async (userIDOne, userIDTwo) => {
 
   // set the name for the room
   newChat.name = roomName;
+  newChat.users = [userOne.firstName, userTwo.firstName];
 
   let userOneNewChat = {};
   let userTwoNewChat = {};
