@@ -1,6 +1,7 @@
 var Account = require("../models/account");
 var emailController = require("./emailController");
 
+//Account controller and model were enspired and build upon Node.js material provided by Unimelb library on https://learning.oreilly.com/videos/the-complete-node-js/9781789955071
 //Registration of user schema. Keeps basic information about user and valid authentication tokens.
 const register = async (req, res) => {
   //New instance of account in Account model
